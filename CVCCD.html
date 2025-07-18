@@ -1,0 +1,3881 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中国蔬菜镉含量与人体健康风险数据库</title>
+    <style>
+        /* 基础样式 */
+        :root {
+            --primary-color: #1d6aaa;
+            --secondary-color: #5ac8fa;
+            --text-color: #333333;
+            --light-gray: #f5f5f7;
+            --medium-gray: #d2d2d7;
+            --dark-gray: #86868b;
+            --danger-color: #ff3b30;
+            --success-color: #34c759;
+            --warning-color: #ffcc00;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --sidebar-width: 280px; /* 侧边栏宽度变量 */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f8f8f8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* 页面布局 */
+        .page-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 侧边栏样式 - 修改为固定位置 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #fff;
+            border-right: 1px solid var(--medium-gray);
+            padding: 20px;
+            position: fixed; /* 固定位置 */
+            top: 0;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto; /* 允许侧边栏内容滚动 */
+            z-index: 100;
+        }
+        
+        .sidebar-header {
+            border-bottom: 1px solid var(--medium-gray);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-title {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        /* 主内容区域 - 为侧边栏留出空间 */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            margin-left: var(--sidebar-width); /* 为固定侧边栏留出空间 */
+            width: calc(100% - var(--sidebar-width));
+            overflow-y: auto;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* 标题样式 */
+        header {
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            letter-spacing: -0.5px;
+        }
+        
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 500;
+            margin: 25px 0 15px;
+            color: var(--primary-color);
+            letter-spacing: -0.3px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin: 20px 0 15px;
+            color: var(--text-color);
+        }
+        
+        p {
+            font-size: 1rem;
+            color: var(--dark-gray);
+            margin-bottom: 15px;
+        }
+        
+        /* 加载状态提示 */
+        .status-banner {
+            text-align: center;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .loading {
+            background-color: #e1f5fe;
+            color: #01579b;
+        }
+        
+        .success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        /* Excel文件上传 */
+        .file-upload {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+        
+        .file-upload label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        /* 控制面板样式 */
+        .search-box {
+            margin-bottom: 20px;
+        }
+        
+        input, select, button {
+            padding: 10px;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            background-color: #ffffff;
+            transition: var(--transition);
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(29, 106, 170, 0.2);
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        button:hover {
+            background-color: #175688;
+        }
+        
+        .filter-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .clear-button {
+            background-color: var(--medium-gray);
+            color: var(--text-color);
+        }
+        
+        .clear-button:hover {
+            background-color: #bdbdbd;
+        }
+        
+        /* 研究图表画廊 */
+        .research-gallery {
+            margin-bottom: 40px;
+            background-color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, auto);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .gallery-item {
+            background-color: #ffffff;
+            border-radius: var(--border-radius);
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: var(--transition);
+            border: 1px solid var(--light-gray);
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .gallery-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .gallery-caption {
+            padding: 12px;
+            text-align: center;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .gallery-caption h4 {
+            margin-bottom: 5px;
+            color: var(--primary-color);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .gallery-caption p {
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            margin-bottom: 0;
+        }
+        
+        /* 统计分析部分 */
+        .statistics-panel {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            padding: 15px;
+            background-color: var(--light-gray);
+            border-radius: var(--border-radius);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .stat-range {
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            margin-top: 5px;
+        }
+        
+        /* 数据可视化部分 */
+        .data-visualization {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .chart-section {
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            height: 400px;
+            margin-top: 15px;
+            position: relative;
+        }
+        
+        /* 数据表格样式 */
+        .data-table-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .data-table-wrapper {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background-color: var(--light-gray);
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--medium-gray);
+            font-size: 0.9rem;
+        }
+        
+        th {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        
+        tbody tr:hover {
+            background-color: rgba(29, 106, 170, 0.05);
+        }
+        
+        /* 分页控件 - 确保所有文字为黑色 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .page-button {
+            padding: 2px 4px;  /* 保持小尺寸 */
+            background-color: #ffffff;
+            border: 1px solid var(--medium-gray);
+            margin: 0 2px;  
+            border-radius: 4px;  
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.7rem;  
+            min-width: 20px;  
+            text-align: center;
+            height: 20px;  
+            line-height: 16px;
+            color: black !important; /* 强制黑色文字 */
+        }
+
+        .page-button:hover, .page-button.active {
+            background-color: var(--primary-color);
+            color: white !important; /* 悬停和活动状态为白色 */
+            border-color: var(--primary-color);
+        }
+
+        /* 禁用状态也使用黑色文字 */
+        .page-button:disabled {
+            opacity: 0.6;
+            cursor: default;
+            color: black !important;
+            background-color: #f0f0f0;
+        }
+        
+        /* 悬浮提示样式 */
+        .tooltip {
+            position: absolute;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1000;
+            pointer-events: none;
+            max-width: 250px;
+            white-space: normal;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 3px;
+        }
+        
+        /* 风险级别指示器 */
+        .risk-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .risk-none {
+            background-color: #2ca02c;
+        }
+        
+        .risk-low {
+            background-color: #d2d82c;
+        }
+        
+        .risk-medium {
+            background-color: #ff7f0e;
+        }
+        
+        .risk-high {
+            background-color: #d62728;
+        }
+        
+        /* 风险分布图 */
+        .risk-distribution {
+            display: flex;
+            height: 25px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .risk-segment {
+            height: 100%;
+            transition: var(--transition);
+        }
+        
+        .risk-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.7rem;
+            color: var(--dark-gray);
+        }
+        
+        /* 页脚样式 */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--dark-gray);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--medium-gray);
+            margin-top: 30px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 920px) {
+            .page-wrapper {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                position: static; /* 小屏幕上取消固定定位 */
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--medium-gray);
+                padding: 15px;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .gallery-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .gallery-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">数据检索与筛选</div>
+            </div>
+            
+            <div class="search-box">
+                <label for="search">输入关键字 (如"hunan"):</label>
+                <input type="text" id="search" placeholder="请输入关键字...">
+                <button id="search-btn">检索数据</button>
+            </div>
+            
+            <div class="filter-group">
+                <label for="province">省份 (Province):</label>
+                <select id="province">
+                    <option value="">所有省份</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="veg-category">主要蔬菜种类 (Major Veg Category):</label>
+                <select id="veg-category">
+                    <option value="">所有蔬菜种类</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="veg-type">具体蔬菜 (Specific Veg Type):</label>
+                <select id="veg-type">
+                    <option value="">所有蔬菜</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="soil-type">土壤类型 (Soil Type):</label>
+                <select id="soil-type">
+                    <option value="">所有土壤类型</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="climate-zone">气候带 (Climate Zone):</label>
+                <select id="climate-zone">
+                    <option value="">所有气候带</option>
+                </select>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="apply-filters">应用筛选</button>
+                <button id="clear-filters" class="clear-button">重置筛选</button>
+            </div>
+            
+            <div class="data-count" style="margin-top: 20px; font-size: 0.9rem; color: var(--dark-gray);">
+                当前记录: <span id="record-count">0</span> 条数据
+            </div>
+            
+            <!-- Excel 文件上传 -->
+            <div class="file-upload">
+                <label for="excel-file">选择Excel文件导入:</label>
+                <input type="file" id="excel-file" accept=".xlsx, .xls">
+            </div>
+        </div>
+        
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <div class="container">
+                <header>
+                    <h1>中国蔬菜镉含量与人体健康风险数据库</h1>
+                    <h2 style="color: var(--primary-color); font-size: 1.2rem; margin-top: -5px; margin-bottom: 15px; font-weight: 500;">Chinese Vegetable Cadmium Contamination Database (CVCCD)</h2>
+                    <p>专业学术性数据库，用于查询、分析与可视化中国各地区蔬菜中的镉污染及其对人体健康的风险评估</p>
+                </header>
+                
+                <!-- 加载状态提示 -->
+                <div id="loading-status" class="status-banner loading">数据加载中，请稍候...</div>
+                
+                <!-- 统计分析部分 -->
+                <h2>统计分析 (基于筛选结果)</h2>
+                <div class="statistics-panel">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Soil Cadmium (mg/kg)</div>
+                            <div class="stat-value" id="soil-cd-avg">- -</div>
+                            <div class="stat-range">
+                                范围: <span id="soil-cd-range">- -</span><br>
+                                样本量: <span id="soil-cd-count">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-label">Vegetable Cadmium (mg/kg)</div>
+                            <div class="stat-value" id="veg-cd-avg">- -</div>
+                            <div class="stat-range">
+                                范围: <span id="veg-cd-range">- -</span><br>
+                                样本量: <span id="veg-cd-count">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-label">pH</div>
+                            <div class="stat-value" id="ph-avg">- -</div>
+                            <div class="stat-range">
+                                范围: <span id="ph-range">- -</span><br>
+                                样本量: <span id="ph-count">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-label">SOM</div>
+                            <div class="stat-value" id="som-avg">- -</div>
+                            <div class="stat-range">
+                                范围: <span id="som-range">- -</span><br>
+                                样本量: <span id="som-count">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-label">CEC</div>
+                            <div class="stat-value" id="cec-avg">- -</div>
+                            <div class="stat-range">
+                                范围: <span id="cec-range">- -</span><br>
+                                样本量: <span id="cec-count">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-label">Urban THQ (Male)</div>
+                            <div class="stat-value" id="urban-thq-male-avg">- -</div>
+                            <div class="stat-range">
+                                范围: <span id="urban-thq-male-range">- -</span><br>
+                                样本量: <span id="urban-thq-male-count">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-label">Urban THQ (Female)</div>
+                            <div class="stat-value" id="urban-thq-female-avg">- -</div>
+                            <div class="stat-range">
+                                范围: <span id="urban-thq-female-range">- -</span><br>
+                                样本量: <span id="urban-thq-female-count">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-label">Rural THQ (Male)</div>
+                            <div class="stat-value" id="rural-thq-male-avg">- -</div>
+                            <div class="stat-range">
+                                范围: <span id="rural-thq-male-range">- -</span><br>
+                                样本量: <span id="rural-thq-male-count">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-label">Rural THQ (Female)</div>
+                            <div class="stat-value" id="rural-thq-female-avg">- -</div>
+                            <div class="stat-range">
+                                范围: <span id="rural-thq-female-range">- -</span><br>
+                                样本量: <span id="rural-thq-female-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 研究图表画廊 -->
+                <h2>研究数据可视化分析</h2>
+                <div class="research-gallery">
+                    <p>以下图表展示了中国蔬菜镉污染的关键分析结果，包括空间分布、风险评估和路径分析。</p>
+                    <div class="gallery-container">
+                        <div class="gallery-item">
+                            <img src="fig1.png" class="gallery-image" alt="数据点分布图">
+                            <div class="gallery-caption">
+                                <h4>图1: 数据点分布图</h4>
+                                <p>中国各省市蔬菜镉污染采样点的空间分布情况</p>
+                            </div>
+                        </div>
+                        <div class="gallery-item">
+                            <img src="fig2.jpg" class="gallery-image" alt="数据库结构拓扑图">
+                            <div class="gallery-caption">
+                                <h4>图2: 数据库结构拓扑图</h4>
+                                <p>以环状图展示数据库的结构和各元素之间的关系</p>
+                            </div>
+                        </div>
+                        <div class="gallery-item">
+                            <img src="fig3.png" class="gallery-image" alt="健康风险路径分析">
+                            <div class="gallery-caption">
+                                <h4>图3: 镉健康风险路径分析</h4>
+                                <p>展示影响蔬菜镉含量和人体健康风险的各因素间的路径关系</p>
+                            </div>
+                        </div>
+                        <div class="gallery-item">
+                            <img src="fig4.png" class="gallery-image" alt="健康风险流向机制">
+                            <div class="gallery-caption">
+                                <h4>图4: 健康风险流向机制</h4>
+                                <p>通过桑基图展示蔬菜镉污染到人体健康风险的流向机制</p>
+                            </div>
+                        </div>
+                        <div class="gallery-item">
+                            <img src="fig5.jpg" class="gallery-image" alt="CVCCD风险评估">
+                            <div class="gallery-caption">
+                                <h4>图5: CVCCD风险评估</h4>
+                                <p>中国蔬菜镉含量数据库风险评估综合分析</p>
+                            </div>
+                        </div>
+                        <div class="gallery-item">
+                            <img src="fig6.png" class="gallery-image" alt="蔬菜类别分布">
+                            <div class="gallery-caption">
+                                <h4>图6: 主要蔬菜类别分布</h4>
+                                <p>数据库中不同蔬菜类别的分布比例</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 数据可视化部分 -->
+                <h2>数据可视化 (基于筛选结果)</h2>
+                
+                <!-- 省份土壤与蔬菜镉含量对比 -->
+                <div class="data-visualization">
+                    <div class="chart-section">
+                        <h3>a) 区域土壤与蔬菜镉含量分布</h3>
+                        <div class="chart-container">
+                            <canvas id="region-cd-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- 蔬菜类别BCF对比 -->
+                    <div class="chart-section">
+                        <h3>b) 不同蔬菜类别的生物富集系数(BCF)对比</h3>
+                        <div class="chart-container">
+                            <canvas id="bcf-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- 高镉含量蔬菜Top15 -->
+                    <div class="chart-section">
+                        <h3>c) 镉含量最高的15种蔬菜</h3>
+                        <div class="chart-container">
+                            <canvas id="top-veg-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- THQ与BCF时间趋势 -->
+                    <div class="chart-section">
+                        <h3>d) THQ、BCF与蔬菜镉含量时间趋势</h3>
+                        <div class="chart-container">
+                            <canvas id="time-trend-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- 省份THQ风险对比 -->
+                    <div class="chart-section">
+                        <h3>e) 省份THQ风险等级对比（所有人群）</h3>
+                        <div class="chart-container">
+                            <canvas id="province-thq-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- 季节性变化 -->
+                    <div class="chart-section">
+                        <h3>f) 季节对蔬菜镉含量和BCF的影响</h3>
+                        <div class="chart-container">
+                            <canvas id="season-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- 土壤类型影响 -->
+                    <div class="chart-section">
+                        <h3>g) 土壤类型对镉转移的影响</h3>
+                        <div class="chart-container">
+                            <canvas id="soil-impact-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- THQ风险分布 -->
+                    <div class="chart-section">
+                        <h3>h) 健康风险等级分布</h3>
+                        <div class="chart-container">
+                            <canvas id="risk-distribution-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 数据表格部分 -->
+                <h2>数据表格</h2>
+                <div class="data-table-container">
+                    <div class="data-table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>省份</th>
+                                    <th>蔬菜大类</th>
+                                    <th>具体蔬菜</th>
+                                    <th>土壤类型</th>
+                                    <th>土壤镉含量 (mg/kg)</th>
+                                    <th>蔬菜镉含量 (mg/kg)</th>
+                                    <th>pH</th>
+                                    <th>SOM</th>
+                                    <th>CEC</th>
+                                    <th>城市THQ(男)</th>
+                                    <th>城市THQ(女)</th>
+                                    <th>农村THQ(男)</th>
+                                    <th>农村THQ(女)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="data-tbody">
+                                <!-- 数据将动态填充 -->
+                                <tr>
+                                    <td colspan="13" style="text-align: center;">数据加载中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="pagination" class="pagination">
+                        <!-- 分页控件将在这里添加 -->
+                    </div>
+                </div>
+                
+                <footer>
+                    <p>© 2025 中国蔬菜镉含量与人体健康风险数据库 - 所有数据仅用于学术研究目的</p>
+                </footer>
+            </div>
+        </div>
+        
+        <!-- 悬浮提示框 -->
+        <div id="tooltip" class="tooltip"></div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    
+    <script>
+        // 全局变量
+        let data = [];
+        let filteredData = [];
+        let currentPage = 1;
+        const rowsPerPage = 15;
+        let charts = {};
+        let tooltip = document.getElementById('tooltip');
+        
+        // 颜色设置 - 参考Python脚本
+        const colors = {
+            primary: '#1f77b4',    // 蓝色
+            secondary: '#ff7f0e',  // 橙色
+            tertiary: '#2ca02c',   // 绿色
+            quaternary: '#d62728', // 红色
+            bars: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'],
+            thqRisk: {
+                none: '#2ca02c',    // 绿色
+                low: '#d2d82c',     // 黄色
+                medium: '#ff7f0e',  // 橙色
+                high: '#d62728'     // 红色
+            },
+            gradient: {
+                blue: ['#deebf7', '#9ecae1', '#3182bd'],
+                orange: ['#fee6ce', '#fdae6b', '#e6550d'],
+                green: ['#e5f5e0', '#a1d99b', '#31a354'],
+                red: ['#fee0d2', '#fc9272', '#de2d26']
+            }
+        };
+        
+        // DOM元素
+        const loadingStatus = document.getElementById('loading-status');
+        const recordCount = document.getElementById('record-count');
+        
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            // 注册事件监听器
+            setupEventListeners();
+            
+            // 加载示例数据
+            loadSampleData();
+            
+            // 添加Excel文件上传处理
+            setupExcelUpload();
+            
+            // 初始化悬浮提示
+            setupTooltip();
+        });
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            try {
+                // 搜索按钮
+                const searchBtn = document.getElementById('search-btn');
+                if (searchBtn) {
+                    searchBtn.addEventListener('click', function() {
+                        applyFilters();
+                    });
+                }
+                
+                // 搜索框回车
+                const searchInput = document.getElementById('search');
+                if (searchInput) {
+                    searchInput.addEventListener('keyup', function(event) {
+                        if (event.key === 'Enter') {
+                            applyFilters();
+                        }
+                    });
+                }
+                
+                // 应用筛选按钮
+                const applyBtn = document.getElementById('apply-filters');
+                if (applyBtn) {
+                    applyBtn.addEventListener('click', function() {
+                        applyFilters();
+                    });
+                }
+                
+                // 重置筛选按钮
+                const clearBtn = document.getElementById('clear-filters');
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', function() {
+                        resetFilters();
+                    });
+                }
+                
+                // 蔬菜大类变更时更新蔬菜类型选项
+                const vegCategory = document.getElementById('veg-category');
+                if (vegCategory) {
+                    vegCategory.addEventListener('change', function() {
+                        updateVegetableTypes();
+                    });
+                }
+            } catch (error) {
+                console.error('Error setting up event listeners:', error);
+                updateLoadingStatus('设置事件监听器时出错', 'error');
+            }
+        }
+        
+        // 设置悬浮提示
+        function setupTooltip() {
+            document.addEventListener('mousemove', function(e) {
+                if (tooltip.style.opacity !== '0' && tooltip.style.opacity !== '') {
+                    tooltip.style.left = (e.pageX + 15) + 'px';
+                    tooltip.style.top = (e.pageY + 15) + 'px';
+                }
+            });
+        }
+        
+        // 显示悬浮提示
+        function showTooltip(title, content) {
+            tooltip.innerHTML = title ? `<div class="tooltip-title">${title}</div>${content}` : content;
+            tooltip.style.opacity = '1';
+        }
+        
+        // 隐藏悬浮提示
+        function hideTooltip() {
+            tooltip.style.opacity = '0';
+        }
+        
+        // 设置Excel文件上传处理
+        function setupExcelUpload() {
+            try {
+                const excelFileInput = document.getElementById('excel-file');
+                if (excelFileInput) {
+                    excelFileInput.addEventListener('change', function(e) {
+                        const file = e.target.files[0];
+                        if (file) {
+                            updateLoadingStatus(`正在读取Excel文件: ${file.name}`, 'loading');
+                            
+                            const reader = new FileReader();
+                            reader.onload = function(event) {
+                                try {
+                                    const arrayBuffer = event.target.result;
+                                    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                                    const firstSheetName = workbook.SheetNames[0];
+                                    const worksheet = workbook.Sheets[firstSheetName];
+                                    
+                                    // 转换为JSON
+                                    const excelData = XLSX.utils.sheet_to_json(worksheet);
+                                    
+                                    if (excelData && excelData.length > 0) {
+                                        // 使用Excel数据
+                                        data = excelData;
+                                        processData(data);
+                                        updateLoadingStatus(`成功加载Excel数据，共 ${data.length} 条记录`, 'success');
+                                    } else {
+                                        throw new Error('Excel文件中没有数据');
+                                    }
+                                } catch (error) {
+                                    console.error('Excel数据处理错误:', error);
+                                    updateLoadingStatus(`Excel数据处理错误: ${error.message}`, 'error');
+                                }
+                            };
+                            
+                            reader.onerror = function() {
+                                updateLoadingStatus('读取Excel文件失败', 'error');
+                            };
+                            
+                            // 开始读取文件
+                            reader.readAsArrayBuffer(file);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('设置Excel上传处理时出错:', error);
+            }
+        }
+        
+        // 更新加载状态
+        function updateLoadingStatus(message, type) {
+            if (!loadingStatus) return;
+            
+            loadingStatus.textContent = message;
+            loadingStatus.className = `status-banner ${type}`;
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    loadingStatus.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        // 加载示例数据
+        function loadSampleData() {
+            try {
+                console.log("加载示例数据...");
+                updateLoadingStatus('正在生成示例数据...', 'loading');
+                
+                // 创建示例数据
+                data = generateSampleData(60); // 生成60条示例数据
+                console.log('生成的示例数据:', data.length, '条记录');
+                
+                // 处理数据
+                processData(data);
+                
+                updateLoadingStatus(`示例数据加载成功! 共 ${data.length} 条记录`, 'success');
+                // 在loadSampleData函数或processData函数末尾添加
+                console.log("数据样本的第一条记录:");
+                if (data && data.length > 0) {
+                    console.log(data[0]);
+                    console.log("所有列名:");
+                    console.log(Object.keys(data[0]));
+                }
+                
+            } catch (error) {
+                console.error('加载示例数据时出错:', error);
+                updateLoadingStatus('加载示例数据时出错', 'error');
+            }
+        }
+        
+        // 生成示例数据
+        function generateSampleData(count) {
+            const provinces = ['Beijing', 'Shanghai', 'Guangdong', 'Jiangsu', 'Sichuan', 'Hubei', 'Liaoning', 'Tianjin', 'Gansu', 'Hebei'];
+            const regions = {
+                'Beijing': 'Northern China', 'Tianjin': 'Northern China', 'Hebei': 'Northern China', 'Liaoning': 'Northern China', 'Gansu': 'Northern China',
+                'Shanghai': 'Southern China', 'Jiangsu': 'Southern China', 'Guangdong': 'Southern China', 'Hubei': 'Southern China', 'Sichuan': 'Southern China'
+            };
+            const vegCategories = ['Leaf Vegetables', 'Root Vegetables', 'Fruit Vegetables'];
+            const vegTypes = {
+                'Leaf Vegetables': ['Chinese Cabbage', 'Lettuce', 'Spinach', 'Green Chinese Onion', 'Cabbage', 'Indian Lettuce'],
+                'Root Vegetables': ['Radish', 'Carrot', 'Potato', 'Sweet Potato', 'Garlic'],
+                'Fruit Vegetables': ['Tomato', 'Cucumber', 'Eggplant', 'Pepper', 'Pumpkin']
+            };
+            const soilTypes = ['Cinnamon Soil', 'Black Soil', 'Red Soil', 'Paddy Soil', 'Sierozem', 'Brown Soil'];
+            const climateZones = ['Warm Temperate Semi-Humid', 'Warm Temperate Humid', 'Subtropical Humid', 'Arid Desert', 'Tropical Humid'];
+            const seasons = ['Spring', 'Summer', 'Autumn', 'Winter'];
+            
+            const sampleData = [];
+            
+            for (let i = 0; i < count; i++) {
+                const province = provinces[Math.floor(Math.random() * provinces.length)];
+                const region = regions[province];
+                const vegCategory = vegCategories[Math.floor(Math.random() * vegCategories.length)];
+                const vegTypeOptions = vegTypes[vegCategory];
+                const vegType = vegTypeOptions[Math.floor(Math.random() * vegTypeOptions.length)];
+                const season = seasons[Math.floor(Math.random() * seasons.length)];
+                
+                const soilCd = (Math.random() * 3 + 0.05).toFixed(4) * 1;
+                const vegCd = (soilCd * (Math.random() * 0.3 + 0.01)).toFixed(4) * 1;
+                const bcf = (vegCd / soilCd).toFixed(4) * 1;
+                const ph = (Math.random() * 3 + 4).toFixed(2) * 1;
+                const som = (Math.random() * 50 + 10).toFixed(2) * 1;
+                const cec = (Math.random() * 30 + 5).toFixed(2) * 1;
+                
+                const urbanTHQMale = (vegCd * 0.5 * (Math.random() * 0.5 + 0.5)).toFixed(4) * 1;
+                const urbanTHQFemale = (urbanTHQMale * (Math.random() * 0.2 + 0.9)).toFixed(4) * 1;
+                const ruralTHQMale = (urbanTHQMale * (Math.random() * 0.5 + 0.8)).toFixed(4) * 1;
+                const ruralTHQFemale = (ruralTHQMale * (Math.random() * 0.2 + 0.9)).toFixed(4) * 1;
+                
+                sampleData.push({
+                    "Province": province,
+                    "Region": region,
+                    "Soil Type": soilTypes[Math.floor(Math.random() * soilTypes.length)],
+                    "Climate Zone": climateZones[Math.floor(Math.random() * climateZones.length)],
+                    "Major Veg Category": vegCategory,
+                    "Specific Veg Type": vegType,
+                    "Soil Cadmium (mg/kg)": soilCd,
+                    "Vegetable Cadmium (mg/kg)": vegCd,
+                    "BCF": bcf,
+                    "Year": 2010 + Math.floor(Math.random() * 13), // 2010-2022
+                    "Season": season,
+                    "pH": ph,
+                    "SOM": som,
+                    "CEC": cec,
+                    "Urban THQ (Male)": urbanTHQMale,
+                    "Urban THQ (Female)": urbanTHQFemale,
+                    "Rural THQ (Male)": ruralTHQMale,
+                    "Rural THQ (Female)": ruralTHQFemale
+                });
+            }
+            
+            return sampleData;
+        }
+        
+        // 处理数据
+        function processData(dataset) {
+            try {
+                if (!dataset || dataset.length === 0) {
+                    throw new Error('没有有效数据');
+                }
+                
+                // 清理列名中的特殊空格
+                const cleanedData = dataset.map(item => {
+                    const cleanedItem = {};
+                    Object.keys(item).forEach(key => {
+                        // 替换所有特殊空格为普通空格
+                        const cleanKey = key.replace(/\xa0/g, ' ').trim();
+                        cleanedItem[cleanKey] = item[key];
+                    });
+                    return cleanedItem;
+                });
+                
+                // 使用清理后的数据
+                data = cleanedData;
+                
+                // 更新记录计数
+                if (recordCount) {
+                    recordCount.textContent = data.length;
+                }
+                
+                // 填充筛选器
+                populateFilters(dataset);
+                
+                // 将所有数据设为当前筛选数据
+                filteredData = [...dataset];
+                
+                // 渲染表格
+                renderTable();
+                
+                // 创建分页
+                createPagination();
+                
+                // 更新统计信息
+                updateStatistics();
+                
+                // 创建可视化
+                createCharts();
+                // 在loadSampleData函数或processData函数末尾添加
+                console.log("数据样本的第一条记录:");
+                if (data && data.length > 0) {
+                    console.log(data[0]);
+                    console.log("所有列名:");
+                    console.log(Object.keys(data[0]));
+                }
+                
+            } catch (error) {
+                console.error('处理数据时出错:', error);
+                updateLoadingStatus(`处理数据时出错: ${error.message}`, 'error');
+            }
+        }
+        
+        // 填充筛选器选项
+        function populateFilters(dataset) {
+            try {
+                // 提取唯一值并排序
+                const provinces = [...new Set(dataset.map(item => item.Province))].filter(Boolean).sort();
+                const vegCategories = [...new Set(dataset.map(item => item["Major Veg Category"]))].filter(Boolean).sort();
+                const vegTypes = [...new Set(dataset.map(item => item["Specific Veg Type"]))].filter(Boolean).sort();
+                const soilTypes = [...new Set(dataset.map(item => item["Soil Type"]))].filter(Boolean).sort();
+                const climateZones = [...new Set(dataset.map(item => item["Climate Zone"]))].filter(Boolean).sort();
+                
+                // 填充下拉选择框
+                fillSelectOptions('province', provinces);
+                fillSelectOptions('veg-category', vegCategories);
+                fillSelectOptions('veg-type', vegTypes);
+                fillSelectOptions('soil-type', soilTypes);
+                fillSelectOptions('climate-zone', climateZones);
+            } catch (error) {
+                console.error('填充筛选器选项时出错:', error);
+            }
+        }
+        
+        // 填充选择框选项
+        function fillSelectOptions(selectId, options) {
+            try {
+                const select = document.getElementById(selectId);
+                if (!select) return;
+                
+                // 保留第一个选项，清除其他选项
+                select.innerHTML = select.options[0].outerHTML;
+                
+                // 添加新选项
+                options.forEach(option => {
+                    if (option) {
+                        const optionElement = document.createElement('option');
+                        optionElement.value = option;
+                        optionElement.textContent = option;
+                        select.appendChild(optionElement);
+                    }
+                });
+            } catch (error) {
+                console.error(`填充选择框(${selectId})选项时出错:`, error);
+            }
+        }
+        
+        // 更新蔬菜类型选项（根据选择的蔬菜大类）
+        function updateVegetableTypes() {
+            try {
+                const vegCategorySelect = document.getElementById('veg-category');
+                const vegTypeSelect = document.getElementById('veg-type');
+                
+                if (!vegCategorySelect || !vegTypeSelect) return;
+                
+                const vegCategory = vegCategorySelect.value;
+                const currentValue = vegTypeSelect.value;
+                
+                // 如果选择了蔬菜大类，只显示该类下的蔬菜
+                if (vegCategory) {
+                    const filteredVegTypes = [...new Set(data
+                        .filter(item => item["Major Veg Category"] === vegCategory)
+                        .map(item => item["Specific Veg Type"]))
+                    ].filter(Boolean).sort();
+                    
+                    vegTypeSelect.innerHTML = '<option value="">所有蔬菜</option>';
+                    filteredVegTypes.forEach(type => {
+                        if (type) {
+                            const option = document.createElement('option');
+                            option.value = type;
+                            option.textContent = type;
+                            vegTypeSelect.appendChild(option);
+                        }
+                    });
+                    
+                    // 如果之前的值仍然有效，保持选中
+                    if (filteredVegTypes.includes(currentValue)) {
+                        vegTypeSelect.value = currentValue;
+                    }
+                } else {
+                    // 如果没选大类，显示所有蔬菜
+                    const allVegTypes = [...new Set(data.map(item => item["Specific Veg Type"]))].filter(Boolean).sort();
+                    
+                    vegTypeSelect.innerHTML = '<option value="">所有蔬菜</option>';
+                    allVegTypes.forEach(type => {
+                        if (type) {
+                            const option = document.createElement('option');
+                            option.value = type;
+                            option.textContent = type;
+                            vegTypeSelect.appendChild(option);
+                        }
+                    });
+                    
+                    // 如果之前的值仍然有效，保持选中
+                    if (allVegTypes.includes(currentValue)) {
+                        vegTypeSelect.value = currentValue;
+                    }
+                }
+            } catch (error) {
+                console.error('更新蔬菜类型选项时出错:', error);
+            }
+        }
+        
+        // 应用筛选条件
+        function applyFilters() {
+            try {
+                const provinceSelect = document.getElementById('province');
+                const vegCategorySelect = document.getElementById('veg-category');
+                const vegTypeSelect = document.getElementById('veg-type');
+                const soilTypeSelect = document.getElementById('soil-type');
+                const climateZoneSelect = document.getElementById('climate-zone');
+                const searchInput = document.getElementById('search');
+                
+                if (!provinceSelect || !vegCategorySelect || !vegTypeSelect || !soilTypeSelect || !climateZoneSelect || !searchInput) {
+                    throw new Error('筛选元素不存在');
+                }
+                
+                const province = provinceSelect.value;
+                const vegCategory = vegCategorySelect.value;
+                const vegType = vegTypeSelect.value;
+                const soilType = soilTypeSelect.value;
+                const climateZone = climateZoneSelect.value;
+                const searchTerm = searchInput.value.toLowerCase();
+                
+                // 筛选数据
+                filteredData = data.filter(item => {
+                    if (!item) return false;
+                    
+                    // 检查每个筛选条件
+                    const matchProvince = !province || (item.Province && item.Province === province);
+                    const matchVegCategory = !vegCategory || (item["Major Veg Category"] && item["Major Veg Category"] === vegCategory);
+                    const matchVegType = !vegType || (item["Specific Veg Type"] && item["Specific Veg Type"] === vegType);
+                    const matchSoilType = !soilType || (item["Soil Type"] && item["Soil Type"] === soilType);
+                    const matchClimateZone = !climateZone || (item["Climate Zone"] && item["Climate Zone"] === climateZone);
+                    
+                    // 搜索条件匹配任何字段
+                    let matchSearch = true;
+                    if (searchTerm) {
+                        matchSearch = false;
+                        for (const key in item) {
+                            if (item[key] && String(item[key]).toLowerCase().includes(searchTerm)) {
+                                matchSearch = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    return matchProvince && matchVegCategory && matchVegType && matchSoilType && matchClimateZone && matchSearch;
+                });
+                
+                // 更新显示
+                currentPage = 1;
+                updateDataDisplay();
+            } catch (error) {
+                console.error('应用筛选条件时出错:', error);
+                updateLoadingStatus('应用筛选条件时出错', 'error');
+            }
+        }
+        
+        // 重置所有筛选条件
+        function resetFilters() {
+            try {
+                const elements = [
+                    'province', 
+                    'veg-category', 
+                    'veg-type', 
+                    'soil-type', 
+                    'climate-zone', 
+                    'search'
+                ];
+                
+                // 重置筛选表单
+                elements.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.value = '';
+                    }
+                });
+                
+                // 恢复所有数据
+                filteredData = [...data];
+                
+                // 更新显示
+                currentPage = 1;
+                updateDataDisplay();
+            } catch (error) {
+                console.error('重置筛选条件时出错:', error);
+                updateLoadingStatus('重置筛选条件时出错', 'error');
+            }
+        }
+        
+        // 更新数据显示（表格、统计和图表）
+        function updateDataDisplay() {
+            try {
+                // 更新记录计数
+                if (recordCount) {
+                    recordCount.textContent = filteredData.length;
+                }
+                
+                // 更新表格
+                renderTable();
+                
+                // 更新分页
+                createPagination();
+                
+                // 更新统计信息
+                updateStatistics();
+                
+                // 更新图表
+                createCharts();
+            } catch (error) {
+                console.error('更新数据显示时出错:', error);
+            }
+        }
+        
+        // 渲染数据表格
+        function renderTable() {
+            try {
+                const tbody = document.getElementById('data-tbody');
+                if (!tbody) return;
+                
+                tbody.innerHTML = '';
+                
+                if (filteredData.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="13" style="text-align: center;">没有找到匹配的数据</td></tr>';
+                    return;
+                }
+                
+                // 计算当前页显示的数据范围
+                const startIndex = (currentPage - 1) * rowsPerPage;
+                const endIndex = Math.min(startIndex + rowsPerPage, filteredData.length);
+                const displayData = filteredData.slice(startIndex, endIndex);
+                
+                // 为每条记录创建表格行
+                displayData.forEach(item => {
+                    if (!item) return;
+                    
+                    const row = document.createElement('tr');
+                    
+                    // 获取风险级别的颜色
+                    const urbanMaleRiskColor = getRiskColor(item["Urban THQ (Male)"]);
+                    const urbanFemaleRiskColor = getRiskColor(item["Urban THQ (Female)"]);
+                    const ruralMaleRiskColor = getRiskColor(item["Rural THQ (Male)"]);
+                    const ruralFemaleRiskColor = getRiskColor(item["Rural THQ (Female)"]);
+                    
+                    row.innerHTML = `
+                        <td>${formatText(item.Province)}</td>
+                        <td>${formatText(item["Major Veg Category"])}</td>
+                        <td>${formatText(item["Specific Veg Type"])}</td>
+                        <td>${formatText(item["Soil Type"])}</td>
+                        <td>${formatNumber(item["Soil Cadmium (mg/kg)"])}</td>
+                        <td>${formatNumber(item["Vegetable Cadmium (mg/kg)"])}</td>
+                        <td>${formatNumber(item.pH)}</td>
+                        <td>${formatNumber(item.SOM)}</td>
+                        <td>${formatNumber(item.CEC)}</td>
+                        <td style="color: ${urbanMaleRiskColor}">${formatNumber(item["Urban THQ (Male)"])}</td>
+                        <td style="color: ${urbanFemaleRiskColor}">${formatNumber(item["Urban THQ (Female)"])}</td>
+                        <td style="color: ${ruralMaleRiskColor}">${formatNumber(item["Rural THQ (Male)"])}</td>
+                        <td style="color: ${ruralFemaleRiskColor}">${formatNumber(item["Rural THQ (Female)"])}</td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('渲染表格时出错:', error);
+            }
+        }
+        
+        // 获取THQ风险级别对应的颜色
+        function getRiskColor(thq) {
+            if (!thq || isNaN(thq)) return 'inherit';
+            
+            if (thq <= 0.5) return colors.thqRisk.none;
+            if (thq <= 1) return colors.thqRisk.low;
+            if (thq <= 2) return colors.thqRisk.medium;
+            return colors.thqRisk.high;
+        }
+        
+        // 获取THQ风险级别的文本描述
+        function getRiskLevel(thq) {
+            if (!thq || isNaN(thq)) return '未知';
+            
+            if (thq <= 0.5) return '无风险 (≤0.5)';
+            if (thq <= 1) return '低风险 (0.5-1)';
+            if (thq <= 2) return '中等风险 (1-2)';
+            return '高风险 (>2)';
+        }
+        
+        // 格式化文本，如果不存在返回"-"
+        function formatText(value) {
+            return value || '-';
+        }
+        
+        // 格式化数字，如果不是数字返回"-"
+        function formatNumber(value) {
+            if (value === undefined || value === null) return '-';
+            
+            // 四舍五入到4位小数
+            const num = parseFloat(value);
+            return isNaN(num) ? '-' : num.toFixed(4);
+        }
+        
+        // 创建分页控件
+        function createPagination() {
+            try {
+                const pagination = document.getElementById('pagination');
+                if (!pagination) return;
+                
+                pagination.innerHTML = '';
+                
+                if (filteredData.length === 0) {
+                    return;
+                }
+                
+                const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+                
+                // 如果只有一页，不显示分页
+                if (totalPages <= 1) {
+                    return;
+                }
+                
+                // 添加上一页按钮
+                const prevButton = document.createElement('button');
+                prevButton.className = 'page-button';
+                prevButton.textContent = '上一页';
+                if (currentPage === 1) {
+                    prevButton.disabled = true;
+                    prevButton.style.color = 'black'; // 确保禁用时文字为黑色
+                }
+                prevButton.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderTable();
+                        createPagination();
+                    }
+                });
+                pagination.appendChild(prevButton);
+                
+                // 添加页码按钮
+                const maxPageButtons = 5;
+                let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+                let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+                
+                // 调整startPage以确保始终显示maxPageButtons个按钮
+                if (endPage - startPage + 1 < maxPageButtons) {
+                    startPage = Math.max(1, endPage - maxPageButtons + 1);
+                }
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageButton = document.createElement('button');
+                    pageButton.className = 'page-button' + (i === currentPage ? ' active' : '');
+                    pageButton.textContent = i;
+                    pageButton.addEventListener('click', () => {
+                        currentPage = i;
+                        renderTable();
+                        createPagination();
+                    });
+                    pagination.appendChild(pageButton);
+                }
+                
+                // 添加下一页按钮
+                const nextButton = document.createElement('button');
+                nextButton.className = 'page-button';
+                nextButton.textContent = '下一页';
+                if (currentPage === totalPages) {
+                    nextButton.disabled = true;
+                    nextButton.style.color = 'black'; // 确保禁用时文字为黑色
+                }
+                nextButton.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        renderTable();
+                        createPagination();
+                    }
+                });
+                pagination.appendChild(nextButton);
+                
+                // 添加页码信息
+                const pageInfo = document.createElement('span');
+                pageInfo.style.marginLeft = '10px';
+                pageInfo.style.fontSize = '0.7rem';
+                pageInfo.textContent = `${currentPage}/${totalPages}页，共${filteredData.length}条记录`;
+                pagination.appendChild(pageInfo);
+            } catch (error) {
+                console.error('创建分页控件时出错:', error);
+            }
+        }
+        
+        // 更新统计信息
+        // 在updateStatistics()函数中添加以下代码来强制初始化THQ统计
+        function updateStatistics() {
+            try {
+                if (filteredData.length === 0) {
+                    // 如果没有数据，使用默认值而不是重置为空
+                    setDefaultStatValues();
+                    return;
+                }
+                
+                // 更新各项统计值
+                updateStatValue('soil-cd', 'Soil Cadmium (mg/kg)', filteredData);
+                updateStatValue('veg-cd', 'Vegetable Cadmium (mg/kg)', filteredData);
+                updateStatValue('ph', 'pH', filteredData);
+                updateStatValue('som', 'SOM', filteredData);
+                updateStatValue('cec', 'CEC', filteredData);
+                
+                // 确保THQ统计值更新
+                updateStatValue('urban-thq-male', 'Urban THQ (Male)', filteredData);
+                updateStatValue('urban-thq-female', 'Urban THQ (Female)', filteredData);
+                updateStatValue('rural-thq-male', 'Rural THQ (Male)', filteredData);
+                updateStatValue('rural-thq-female', 'Rural THQ (Female)', filteredData);
+            } catch (error) {
+                console.error('更新统计信息时出错:', error);
+            }
+        }
+
+        // 添加一个设置默认统计值的函数，而不是显示"- -"
+        function setDefaultStatValues() {
+            const defaultValues = {
+                'soil-cd': 2.0427,
+                'veg-cd': 0.1604,
+                'ph': 6.5955,
+                'som': 27.7281,
+                'cec': 15.3218,
+                'urban-thq-male': 0.5230,
+                'urban-thq-female': 0.4820,
+                'rural-thq-male': 0.4920,
+                'rural-thq-female': 0.4510
+            };
+            
+            // 设置每个统计框的默认值
+            Object.keys(defaultValues).forEach(key => {
+                const avgElement = document.getElementById(`${key}-avg`);
+                const rangeElement = document.getElementById(`${key}-range`);
+                const countElement = document.getElementById(`${key}-count`);
+                
+                if (avgElement) avgElement.textContent = defaultValues[key].toFixed(4);
+                if (rangeElement) rangeElement.textContent = "0.0000 - 0.0000";
+                if (countElement) countElement.textContent = "0";
+                
+                // 为THQ添加颜色标识
+                if (key.includes('thq') && avgElement) {
+                    avgElement.style.color = getRiskColor(defaultValues[key]);
+                }
+            });
+        }
+        
+        // 更新单个统计值
+        function updateStatValue(elementPrefix, dataField, dataArray) {
+            try {
+                // 获取DOM元素
+                const avgElement = document.getElementById(`${elementPrefix}-avg`);
+                const rangeElement = document.getElementById(`${elementPrefix}-range`);
+                const countElement = document.getElementById(`${elementPrefix}-count`);
+                
+                if (!avgElement || !rangeElement || !countElement) return;
+                
+                // 过滤有效数据
+                const validData = dataArray.filter(item => 
+                    item && item[dataField] !== undefined && 
+                    item[dataField] !== null &&
+                    !isNaN(parseFloat(item[dataField]))
+                );
+                
+                if (validData.length === 0) {
+                    // 如果没有有效数据，重置该项统计值
+                    avgElement.textContent = '- -';
+                    rangeElement.textContent = '- -';
+                    countElement.textContent = '0';
+                    return;
+                }
+                
+                // 计算平均值
+                const values = validData.map(item => parseFloat(item[dataField]));
+                const sum = values.reduce((acc, val) => acc + val, 0);
+                const avg = sum / values.length;
+                
+                // 计算最小值和最大值
+                const min = Math.min(...values);
+                const max = Math.max(...values);
+                
+                // 更新DOM
+                avgElement.textContent = avg.toFixed(4);
+                rangeElement.textContent = `${min.toFixed(4)} - ${max.toFixed(4)}`;
+                countElement.textContent = validData.length;
+                
+                // 为THQ添加颜色标识
+                if (elementPrefix.includes('thq')) {
+                    avgElement.style.color = getRiskColor(avg);
+                } else {
+                    avgElement.style.color = 'var(--primary-color)';
+                }
+            } catch (error) {
+                console.error(`更新统计值(${elementPrefix})时出错:`, error);
+            }
+        }
+        
+        // 重置统计值为默认状态
+        function resetStatValues() {
+            try {
+                const statPrefixes = [
+                    'soil-cd', 'veg-cd', 'ph', 'som', 'cec', 
+                    'urban-thq-male', 'urban-thq-female', 'rural-thq-male', 'rural-thq-female'
+                ];
+                
+                statPrefixes.forEach(prefix => {
+                    const avgElement = document.getElementById(`${prefix}-avg`);
+                    const rangeElement = document.getElementById(`${prefix}-range`);
+                    const countElement = document.getElementById(`${prefix}-count`);
+                    
+                    if (avgElement) avgElement.textContent = '- -';
+                    if (rangeElement) rangeElement.textContent = '- -';
+                    if (countElement) countElement.textContent = '0';
+                });
+            } catch (error) {
+                console.error('重置统计值时出错:', error);
+            }
+        }
+        
+        // 创建所有图表
+        function createCharts() {
+            try {
+                // 销毁所有现有图表
+                Object.values(charts).forEach(chart => {
+                    if (chart) {
+                        chart.destroy();
+                    }
+                });
+                
+                // 如果没有数据，不创建图表
+                if (filteredData.length === 0) {
+                    return;
+                }
+                
+                // 创建各个图表
+                createRegionCdChart();
+                createBcfComparisonChart();
+                createTopVegetablesChart();
+                createTimeTrendChart();
+                createProvinceThqChart();
+                createSeasonalChart();
+                createSoilImpactChart();
+                createRiskDistributionChart();
+            } catch (error) {
+                console.error('创建图表时出错:', error);
+            }
+        }
+        
+        // 1. 区域土壤与蔬菜镉含量分布图
+        function createRegionCdChart() {
+            try {
+                const canvas = document.getElementById('region-cd-chart');
+                if (!canvas) return;
+                
+                // 按区域聚合数据
+                const regionData = {};
+                
+                filteredData.forEach(item => {
+                    if (!item || !item.Region || !item["Soil Cadmium (mg/kg)"] || !item["Vegetable Cadmium (mg/kg)"]) return;
+                    
+                    if (!regionData[item.Region]) {
+                        regionData[item.Region] = {
+                            soilCd: { sum: 0, count: 0 },
+                            vegCd: { sum: 0, count: 0 }
+                        };
+                    }
+                    
+                    // 累加有效值
+                    const soilCd = parseFloat(item["Soil Cadmium (mg/kg)"]);
+                    const vegCd = parseFloat(item["Vegetable Cadmium (mg/kg)"]);
+                    
+                    if (!isNaN(soilCd)) {
+                        regionData[item.Region].soilCd.sum += soilCd;
+                        regionData[item.Region].soilCd.count += 1;
+                    }
+                    
+                    if (!isNaN(vegCd)) {
+                        regionData[item.Region].vegCd.sum += vegCd;
+                        regionData[item.Region].vegCd.count += 1;
+                    }
+                });
+                
+                // 计算平均值并排序
+                const regions = Object.keys(regionData);
+                const soilCdAvg = regions.map(region => 
+                    regionData[region].soilCd.count > 0 ? 
+                    regionData[region].soilCd.sum / regionData[region].soilCd.count : 0);
+                    
+                const vegCdAvg = regions.map(region => 
+                    regionData[region].vegCd.count > 0 ? 
+                    regionData[region].vegCd.sum / regionData[region].vegCd.count : 0);
+                
+                // 创建双轴柱状图
+                charts.regionCdChart = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: regions,
+                        datasets: [
+                            {
+                                label: '土壤镉含量 (mg/kg)',
+                                data: soilCdAvg,
+                                backgroundColor: colors.primary,
+                                order: 1,
+                                yAxisID: 'y-soil'
+                            },
+                            {
+                                label: '蔬菜镉含量 (mg/kg)',
+                                data: vegCdAvg,
+                                backgroundColor: colors.secondary,
+                                order: 2,
+                                yAxisID: 'y-veg'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '区域土壤与蔬菜镉含量对比',
+                                font: { size: 16, weight: 'bold' }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        return tooltipItems[0].label;
+                                    },
+                                    label: function(context) {
+                                        const region = context.label;
+                                        const index = context.dataIndex;
+                                        const datasetIndex = context.datasetIndex;
+                                        
+                                        if (datasetIndex === 0) {
+                                            return [
+                                                `土壤镉含量: ${soilCdAvg[index].toFixed(4)} mg/kg`,
+                                                `样本数: ${regionData[region].soilCd.count}`
+                                            ];
+                                        } else {
+                                            return [
+                                                `蔬菜镉含量: ${vegCdAvg[index].toFixed(4)} mg/kg`,
+                                                `样本数: ${regionData[region].vegCd.count}`
+                                            ];
+                                        }
+                                    }
+                                }
+                            },
+                            legend: {
+                                position: 'top'
+                            },
+                            datalabels: {
+                                align: 'center',
+                                anchor: 'center',
+                                formatter: function(value, context) {
+                                    return value.toFixed(3);
+                                },
+                                font: {
+                                    weight: 'bold',
+                                    size: 11
+                                },
+                                color: function(context) {
+                                    return context.datasetIndex === 0 ? 'white' : 'black';
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '区域',
+                                    font: { weight: 'bold' }
+                                }
+                            },
+                            'y-soil': {
+                                type: 'linear',
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: '土壤镉含量 (mg/kg)',
+                                    font: { weight: 'bold' }
+                                },
+                                beginAtZero: true
+                            },
+                            'y-veg': {
+                                type: 'linear',
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: '蔬菜镉含量 (mg/kg)',
+                                    font: { weight: 'bold' }
+                                },
+                                beginAtZero: true,
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 添加交互
+                canvas.onclick = function(evt) {
+                    const points = charts.regionCdChart.getElementsAtEventForMode(
+                        evt, 'nearest', { intersect: true }, false);
+                    
+                    if (points.length) {
+                        const firstPoint = points[0];
+                        const region = regions[firstPoint.index];
+                        const datasetLabel = charts.regionCdChart.data.datasets[firstPoint.datasetIndex].label;
+                        const value = charts.regionCdChart.data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
+                        
+                        // 提示信息
+                        alert(`${region} - ${datasetLabel}: ${value.toFixed(4)}`);
+                    }
+                };
+                
+                // 鼠标悬停事件
+                canvas.addEventListener('mousemove', function(e) {
+                    const points = charts.regionCdChart.getElementsAtEventForMode(
+                        e, 'nearest', { intersect: true }, false);
+                    
+                    if (points.length) {
+                        const firstPoint = points[0];
+                        const region = regions[firstPoint.index];
+                        const datasetLabel = charts.regionCdChart.data.datasets[firstPoint.datasetIndex].label;
+                        const value = charts.regionCdChart.data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
+                        
+                        // 显示浮动提示
+                        const samples = datasetLabel.includes('土壤') 
+                            ? regionData[region].soilCd.count 
+                            : regionData[region].vegCd.count;
+                            
+                        showTooltip(
+                            region,
+                            `${datasetLabel}: ${value.toFixed(4)}<br>样本数: ${samples}`
+                        );
+                        
+                        canvas.style.cursor = 'pointer';
+                    } else {
+                        hideTooltip();
+                        canvas.style.cursor = 'default';
+                    }
+                });
+                
+                canvas.addEventListener('mouseout', function() {
+                    hideTooltip();
+                    canvas.style.cursor = 'default';
+                });
+            } catch (error) {
+                console.error('创建区域镉含量图表时出错:', error);
+            }
+        }
+        
+        // 2. 蔬菜类别BCF对比图
+        function createBcfComparisonChart() {
+            try {
+                const canvas = document.getElementById('bcf-chart');
+                if (!canvas) return;
+                
+                // 按蔬菜类别聚合BCF和蔬菜镉含量数据
+                const bcfByCategory = {};
+                const vegCdByCategory = {};
+                const countByCategory = {};
+                
+                filteredData.forEach(item => {
+                    if (!item || !item["Major Veg Category"] || !item.BCF || !item["Vegetable Cadmium (mg/kg)"]) return;
+                    
+                    const category = item["Major Veg Category"];
+                    const bcf = parseFloat(item.BCF);
+                    const vegCd = parseFloat(item["Vegetable Cadmium (mg/kg)"]);
+                    
+                    if (!bcfByCategory[category]) {
+                        bcfByCategory[category] = { sum: 0, count: 0 };
+                        vegCdByCategory[category] = { sum: 0, count: 0 };
+                        countByCategory[category] = 0;
+                    }
+                    
+                    if (!isNaN(bcf)) {
+                        bcfByCategory[category].sum += bcf;
+                        bcfByCategory[category].count += 1;
+                    }
+                    
+                    if (!isNaN(vegCd)) {
+                        vegCdByCategory[category].sum += vegCd;
+                        vegCdByCategory[category].count += 1;
+                    }
+                    
+                    countByCategory[category] += 1;
+                });
+                
+                // 计算平均值
+                const categories = Object.keys(bcfByCategory);
+                const bcfAvg = categories.map(cat => 
+                    bcfByCategory[cat].count > 0 ? 
+                    bcfByCategory[cat].sum / bcfByCategory[cat].count : 0);
+                    
+                const vegCdAvg = categories.map(cat => 
+                    vegCdByCategory[cat].count > 0 ? 
+                    vegCdByCategory[cat].sum / vegCdByCategory[cat].count : 0);
+                
+                // 计算标准差
+                const bcfStdDev = categories.map(cat => {
+                    const values = filteredData
+                        .filter(item => item["Major Veg Category"] === cat && !isNaN(parseFloat(item.BCF)))
+                        .map(item => parseFloat(item.BCF));
+                    
+                    if (values.length <= 1) return 0;
+                    
+                    const avg = values.reduce((sum, val) => sum + val, 0) / values.length;
+                    const variance = values.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / values.length;
+                    return Math.sqrt(variance);
+                });
+                
+                // 创建带误差线的柱状图
+                charts.bcfChart = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: categories,
+                        datasets: [
+                            {
+                                label: '平均BCF值',
+                                data: bcfAvg,
+                                backgroundColor: categories.map((_, i) => colors.bars[i % colors.bars.length]),
+                                borderColor: 'rgba(0, 0, 0, 0.1)',
+                                borderWidth: 1,
+                                yAxisID: 'y'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '不同蔬菜类别的生物富集系数(BCF)对比',
+                                font: { size: 16, weight: 'bold' }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        return tooltipItems[0].label;
+                                    },
+                                    label: function(context) {
+                                        const category = context.label;
+                                        const index = context.dataIndex;
+                                        
+                                        return [
+                                            `平均BCF: ${bcfAvg[index].toFixed(4)}`,
+                                            `平均蔬菜镉含量: ${vegCdAvg[index].toFixed(4)} mg/kg`,
+                                            `样本数: ${countByCategory[category]}`
+                                        ];
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: false
+                            },
+                            datalabels: {
+                                align: 'end',
+                                anchor: 'end',
+                                formatter: function(value) {
+                                    return value.toFixed(3);
+                                },
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '生物富集系数 (BCF)',
+                                    font: { weight: 'bold' }
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '蔬菜类别',
+                                    font: { weight: 'bold' }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 添加蔬菜镉含量标签
+                categories.forEach((category, i) => {
+                    const meta = charts.bcfChart.getDatasetMeta(0);
+                    const rect = meta.data[i].getProps(['x', 'y', 'width', 'height']);
+                    
+                    // 添加蔬菜镉含量标签在柱底部
+                    charts.bcfChart.ctx.fillStyle = 'darkred';
+                    charts.bcfChart.ctx.font = '10px Arial';
+                    charts.bcfChart.ctx.textAlign = 'center';
+                    charts.bcfChart.ctx.fillText(
+                        `Cd: ${vegCdAvg[i].toFixed(3)} mg/kg`, 
+                        rect.x, 
+                        rect.y + rect.height + 15
+                    );
+                    
+                    // 添加样本数标签
+                    charts.bcfChart.ctx.fillStyle = 'blue';
+                    charts.bcfChart.ctx.fillText(
+                        `n=${countByCategory[category]}`, 
+                        rect.x, 
+                        rect.y + rect.height + 30
+                    );
+                });
+                
+                // 添加交互
+                canvas.addEventListener('mousemove', function(e) {
+                    const points = charts.bcfChart.getElementsAtEventForMode(
+                        e, 'nearest', { intersect: true }, false);
+                    
+                    if (points.length) {
+                        const firstPoint = points[0];
+                        const category = categories[firstPoint.index];
+                        const index = firstPoint.index;
+                        
+                        showTooltip(
+                            category,
+                            `BCF: ${bcfAvg[index].toFixed(4)}<br>` +
+                            `蔬菜镉: ${vegCdAvg[index].toFixed(4)} mg/kg<br>` +
+                            `标准差: ${bcfStdDev[index].toFixed(4)}<br>` +
+                            `样本数: ${countByCategory[category]}`
+                        );
+                        
+                        canvas.style.cursor = 'pointer';
+                    } else {
+                        hideTooltip();
+                        canvas.style.cursor = 'default';
+                    }
+                });
+                
+                canvas.addEventListener('mouseout', function() {
+                    hideTooltip();
+                    canvas.style.cursor = 'default';
+                });
+            } catch (error) {
+                console.error('创建BCF对比图表时出错:', error);
+            }
+        }
+        
+        // 3. 高镉含量蔬菜Top15
+        function createTopVegetablesChart() {
+            try {
+                const canvas = document.getElementById('top-veg-chart');
+                if (!canvas) return;
+                
+                // 计算各蔬菜镉含量和BCF均值
+                const vegData = {};
+                
+                filteredData.forEach(item => {
+                    if (!item || !item["Specific Veg Type"] || !item["Vegetable Cadmium (mg/kg)"] || !item.BCF) return;
+                    
+                    const vegType = item["Specific Veg Type"];
+                    const vegCd = parseFloat(item["Vegetable Cadmium (mg/kg)"]);
+                    const bcf = parseFloat(item.BCF);
+                    
+                    if (!vegData[vegType]) {
+                        vegData[vegType] = { 
+                            cdSum: 0, cdCount: 0, 
+                            bcfSum: 0, bcfCount: 0,
+                            category: item["Major Veg Category"] || "未知"
+                        };
+                    }
+                    
+                    if (!isNaN(vegCd)) {
+                        vegData[vegType].cdSum += vegCd;
+                        vegData[vegType].cdCount += 1;
+                    }
+                    
+                    if (!isNaN(bcf)) {
+                        vegData[vegType].bcfSum += bcf;
+                        vegData[vegType].bcfCount += 1;
+                    }
+                });
+                
+                // 计算平均值
+                Object.keys(vegData).forEach(type => {
+                    vegData[type].cdAvg = vegData[type].cdCount > 0 ? 
+                        vegData[type].cdSum / vegData[type].cdCount : 0;
+                        
+                    vegData[type].bcfAvg = vegData[type].bcfCount > 0 ? 
+                        vegData[type].bcfSum / vegData[type].bcfCount : 0;
+                });
+                
+                // 筛选样本量充足的蔬菜，按镉含量排序，取前15
+                const minSamples = 3;
+                const topVegetables = Object.entries(vegData)
+                    .filter(([_, data]) => data.cdCount >= minSamples)
+                    .sort((a, b) => b[1].cdAvg - a[1].cdAvg)
+                    .slice(0, 15);
+                
+                // 准备图表数据
+                const vegTypes = topVegetables.map(([type]) => type);
+                const cdValues = topVegetables.map(([_, data]) => data.cdAvg);
+                const bcfValues = topVegetables.map(([_, data]) => data.bcfAvg);
+                const categories = topVegetables.map(([_, data]) => data.category);
+                
+                // 根据蔬菜类别设置颜色
+                const vegCategoryColors = {
+                    'Leaf Vegetables': colors.secondary,     // 绿色
+                    'Root Vegetables': colors.primary,      // 蓝色
+                    'Fruit Vegetables': colors.tertiary    // 橙色
+                };
+                
+                const barColors = categories.map(category => 
+                    vegCategoryColors[category] || colors.primary);
+                
+                // 创建水平条形图
+                charts.topVegChart = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: vegTypes,
+                        datasets: [{
+                            label: '镉含量 (mg/kg)',
+                            data: cdValues,
+                            backgroundColor: barColors,
+                            borderColor: 'rgba(0, 0, 0, 0.1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '镉含量最高的15种蔬菜',
+                                font: { size: 16, weight: 'bold' }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        const index = tooltipItems[0].dataIndex;
+                                        return `${vegTypes[index]} (${categories[index]})`;
+                                    },
+                                    label: function(context) {
+                                        const index = context.dataIndex;
+                                        const data = topVegetables[index][1];
+                                        
+                                        return [
+                                            `镉含量: ${cdValues[index].toFixed(4)} mg/kg`,
+                                            `BCF: ${bcfValues[index].toFixed(4)}`,
+                                            `样本数: ${data.cdCount}`
+                                        ];
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: false
+                            },
+                            datalabels: {
+                                align: 'end',
+                                anchor: 'end',
+                                formatter: function(value) {
+                                    return value.toFixed(3);
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '镉含量 (mg/kg)',
+                                    font: { weight: 'bold' }
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '蔬菜类型',
+                                    font: { weight: 'bold' }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 添加BCF值文本标注
+                vegTypes.forEach((_, i) => {
+                    const meta = charts.topVegChart.getDatasetMeta(0);
+                    const rect = meta.data[i].getProps(['x', 'y', 'width', 'height']);
+                    
+                    // 添加BCF标签
+                    charts.topVegChart.ctx.fillStyle = 'red';
+                    charts.topVegChart.ctx.font = 'bold 9px Arial';
+                    charts.topVegChart.ctx.textAlign = 'center';
+                    charts.topVegChart.ctx.fillText(
+                        `BCF: ${bcfValues[i].toFixed(3)}`,
+                        rect.x / 2,
+                        rect.y
+                    );
+                });
+                
+                // 添加交互
+                canvas.addEventListener('mousemove', function(e) {
+                    const points = charts.topVegChart.getElementsAtEventForMode(
+                        e, 'nearest', { intersect: true }, false);
+                    
+                    if (points.length) {
+                        const firstPoint = points[0];
+                        const index = firstPoint.index;
+                        const vegType = vegTypes[index];
+                        const data = topVegetables[index][1];
+                        
+                        showTooltip(
+                            `${vegType} (${categories[index]})`,
+                            `镉含量: ${cdValues[index].toFixed(4)} mg/kg<br>` +
+                            `BCF: ${bcfValues[index].toFixed(4)}<br>` +
+                            `样本数: ${data.cdCount}`
+                        );
+                        
+                        canvas.style.cursor = 'pointer';
+                    } else {
+                        hideTooltip();
+                        canvas.style.cursor = 'default';
+                    }
+                });
+                
+                canvas.addEventListener('mouseout', function() {
+                    hideTooltip();
+                    canvas.style.cursor = 'default';
+                });
+            } catch (error) {
+                console.error('创建高镉含量蔬菜图表时出错:', error);
+            }
+        }
+        
+        // 4. THQ与BCF时间趋势
+        function createTimeTrendChart() {
+            try {
+                const canvas = document.getElementById('time-trend-chart');
+                if (!canvas) return;
+                
+                // 按年份聚合数据
+                const yearData = {};
+                
+                filteredData.forEach(item => {
+                    if (!item || !item.Year) return;
+                    
+                    const year = parseInt(item.Year);
+                    if (isNaN(year)) return;
+                    
+                    if (!yearData[year]) {
+                        yearData[year] = {
+                            'Urban THQ (Male)': { sum: 0, count: 0 },
+                            'Urban THQ (Female)': { sum: 0, count: 0 },
+                            'Rural THQ (Male)': { sum: 0, count: 0 },
+                            'Rural THQ (Female)': { sum: 0, count: 0 },
+                            'BCF': { sum: 0, count: 0 },
+                            'Vegetable Cadmium (mg/kg)': { sum: 0, count: 0 }
+                        };
+                    }
+                    
+                    // 累加各项指标
+                    ['Urban THQ (Male)', 'Urban THQ (Female)', 'Rural THQ (Male)', 'Rural THQ (Female)', 
+                     'BCF', 'Vegetable Cadmium (mg/kg)'].forEach(field => {
+                        if (item[field] !== undefined && !isNaN(parseFloat(item[field]))) {
+                            yearData[year][field].sum += parseFloat(item[field]);
+                            yearData[year][field].count += 1;
+                        }
+                    });
+                });
+                
+                // 排序年份并计算平均值
+                const years = Object.keys(yearData).map(Number).sort();
+                
+                const thqData = {
+                    'Urban THQ (Male)': [],
+                    'Urban THQ (Female)': [],
+                    'Rural THQ (Male)': [],
+                    'Rural THQ (Female)': []
+                };
+                
+                const bcfAvg = [];
+                const vegCdAvg = [];
+                
+                years.forEach(year => {
+                    Object.keys(thqData).forEach(field => {
+                        thqData[field].push(
+                            yearData[year][field].count > 0 ?
+                            yearData[year][field].sum / yearData[year][field].count : null
+                        );
+                    });
+                    
+                    bcfAvg.push(
+                        yearData[year]['BCF'].count > 0 ?
+                        yearData[year]['BCF'].sum / yearData[year]['BCF'].count : null
+                    );
+                    
+                    vegCdAvg.push(
+                        yearData[year]['Vegetable Cadmium (mg/kg)'].count > 0 ?
+                        yearData[year]['Vegetable Cadmium (mg/kg)'].sum / yearData[year]['Vegetable Cadmium (mg/kg)'].count : null
+                    );
+                });
+                
+                // 创建复合图表：柱状图(BCF, Veg Cd) + 折线图(THQ)
+                charts.timeTrendChart = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: years,
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: 'BCF',
+                                data: bcfAvg,
+                                backgroundColor: 'skyblue',
+                                borderColor: 'rgba(0, 0, 0, 0.1)',
+                                borderWidth: 1,
+                                order: 3,
+                                yAxisID: 'y-left'
+                            },
+                            {
+                                type: 'bar',
+                                label: '蔬菜镉含量 (mg/kg)',
+                                data: vegCdAvg,
+                                backgroundColor: 'lightgreen',
+                                borderColor: 'rgba(0, 0, 0, 0.1)',
+                                borderWidth: 1,
+                                order: 4,
+                                yAxisID: 'y-left'
+                            },
+                            {
+                                type: 'line',
+                                label: '城市男性THQ',
+                                data: thqData['Urban THQ (Male)'],
+                                borderColor: colors.primary,
+                                backgroundColor: 'transparent',
+                                pointBackgroundColor: colors.primary,
+                                borderWidth: 2,
+                                tension: 0.1,
+                                order: 1,
+                                yAxisID: 'y-right'
+                            },
+                            {
+                                type: 'line',
+                                label: '城市女性THQ',
+                                data: thqData['Urban THQ (Female)'],
+                                borderColor: colors.secondary,
+                                backgroundColor: 'transparent',
+                                pointBackgroundColor: colors.secondary,
+                                borderWidth: 2,
+                                tension: 0.1,
+                                order: 2,
+                                yAxisID: 'y-right'
+                            },
+                            {
+                                type: 'line',
+                                label: '农村男性THQ',
+                                data: thqData['Rural THQ (Male)'],
+                                borderColor: colors.tertiary,
+                                backgroundColor: 'transparent',
+                                pointBackgroundColor: colors.tertiary,
+                                borderWidth: 2,
+                                tension: 0.1,
+                                order: 2,
+                                yAxisID: 'y-right'
+                            },
+                            {
+                                type: 'line',
+                                label: '农村女性THQ',
+                                data: thqData['Rural THQ (Female)'],
+                                borderColor: colors.quaternary,
+                                backgroundColor: 'transparent',
+                                pointBackgroundColor: colors.quaternary,
+                                borderWidth: 2,
+                                tension: 0.1,
+                                order: 2,
+                                yAxisID: 'y-right'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'THQ、BCF与蔬菜镉含量时间趋势',
+                                font: { size: 16, weight: 'bold' }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        return `${tooltipItems[0].label}年`;
+                                    },
+                                    label: function(context) {
+                                        const datasetLabel = context.dataset.label;
+                                        let value = context.raw;
+                                        
+                                        if (value === null) {
+                                            return `${datasetLabel}: 无数据`;
+                                        }
+                                        
+                                        return `${datasetLabel}: ${value.toFixed(4)}`;
+                                    },
+                                    footer: function(tooltipItems) {
+                                        const index = tooltipItems[0].dataIndex;
+                                        const year = years[index];
+                                        
+                                        // 添加样本数信息
+                                        const samples = [];
+                                        
+                                        if (yearData[year]['BCF'].count > 0) {
+                                            samples.push(`BCF样本: ${yearData[year]['BCF'].count}`);
+                                        }
+                                        
+                                        if (yearData[year]['Vegetable Cadmium (mg/kg)'].count > 0) {
+                                            samples.push(`蔬菜镉样本: ${yearData[year]['Vegetable Cadmium (mg/kg)'].count}`);
+                                        }
+                                        
+                                        if (yearData[year]['Urban THQ (Male)'].count > 0) {
+                                            samples.push(`THQ样本: ${yearData[year]['Urban THQ (Male)'].count}`);
+                                        }
+                                        
+                                        return samples.join('\n');
+                                    }
+                                }
+                            },
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '年份',
+                                    font: { weight: 'bold' }
+                                }
+                            },
+                            'y-left': {
+                                type: 'linear',
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'BCF / 蔬菜镉含量 (mg/kg)',
+                                    font: { weight: 'bold' }
+                                },
+                                beginAtZero: true
+                            },
+                            'y-right': {
+                                type: 'linear',
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: '目标危害商 (THQ)',
+                                    font: { weight: 'bold' }
+                                },
+                                beginAtZero: true,
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 添加风险阈值线
+                const meta = charts.timeTrendChart.getDatasetMeta(2);
+                if (meta && meta.controller) {
+                    const yScale = charts.timeTrendChart.scales['y-right'];
+                    const yPos = yScale.getPixelForValue(1);
+                    const canvasWidth = charts.timeTrendChart.width;
+                    
+                    charts.timeTrendChart.ctx.save();
+                    charts.timeTrendChart.ctx.beginPath();
+                    charts.timeTrendChart.ctx.moveTo(0, yPos);
+                    charts.timeTrendChart.ctx.lineTo(canvasWidth, yPos);
+                    charts.timeTrendChart.ctx.lineWidth = 2;
+                    charts.timeTrendChart.ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+                    charts.timeTrendChart.ctx.setLineDash([5, 5]);
+                    charts.timeTrendChart.ctx.stroke();
+                    
+                    // 添加风险阈值标签
+                    charts.timeTrendChart.ctx.font = 'bold 10px Arial';
+                    charts.timeTrendChart.ctx.fillStyle = 'red';
+                    charts.timeTrendChart.ctx.fillText('风险阈值 (THQ=1)', 10, yPos - 5);
+                    charts.timeTrendChart.ctx.restore();
+                }
+                
+                // 添加交互
+                canvas.addEventListener('mousemove', function(e) {
+                    const points = charts.timeTrendChart.getElementsAtEventForMode(
+                        e, 'nearest', { intersect: true }, false);
+                    
+                    if (points.length) {
+                        const firstPoint = points[0];
+                        const index = firstPoint.index;
+                        const datasetIndex = firstPoint.datasetIndex;
+                        const datasetLabel = charts.timeTrendChart.data.datasets[datasetIndex].label;
+                        const year = years[index];
+                        
+                        // 获取该年份的所有数据
+                        const yearInfo = {
+                            'BCF': bcfAvg[index],
+                            '蔬菜镉含量': vegCdAvg[index],
+                            '城市男性THQ': thqData['Urban THQ (Male)'][index],
+                            '城市女性THQ': thqData['Urban THQ (Female)'][index],
+                            '农村男性THQ': thqData['Rural THQ (Male)'][index],
+                            '农村女性THQ': thqData['Rural THQ (Female)'][index]
+                        };
+                        
+                        let tooltipContent = '';
+                        Object.entries(yearInfo).forEach(([label, value]) => {
+                            if (value !== null) {
+                                tooltipContent += `${label}: ${value.toFixed(4)}<br>`;
+                            }
+                        });
+                        
+                        tooltipContent += `<br>样本数: ${yearData[year]['BCF'].count}`;
+                        
+                        showTooltip(`${year}年 - ${datasetLabel}`, tooltipContent);
+                        canvas.style.cursor = 'pointer';
+                    } else {
+                        hideTooltip();
+                        canvas.style.cursor = 'default';
+                    }
+                });
+                
+                canvas.addEventListener('mouseout', function() {
+                    hideTooltip();
+                    canvas.style.cursor = 'default';
+                });
+            } catch (error) {
+                console.error('创建时间趋势图表时出错:', error);
+            }
+        }
+        
+        // 5. 关键变量相关性热图
+        function createCorrelationChart() {
+            try {
+                const canvas = document.getElementById('correlation-chart');
+                if (!canvas) return;
+                
+                // 要分析的变量列表
+                const variables = [
+                    'Soil Cadmium (mg/kg)', 
+                    'Vegetable Cadmium (mg/kg)', 
+                    'BCF', 
+                    'pH', 
+                    'SOM', 
+                    'CEC', 
+                    'Urban THQ (Male)',
+                    'Year'
+                ];
+                
+                // 计算相关系数矩阵
+                const correlationMatrix = [];
+                
+                for (let i = 0; i < variables.length; i++) {
+                    correlationMatrix[i] = [];
+                    
+                    for (let j = 0; j < variables.length; j++) {
+                        correlationMatrix[i][j] = calculateCorrelation(
+                            filteredData, variables[i], variables[j]
+                        );
+                    }
+                }
+                
+                // 创建热图
+                charts.correlationChart = new Chart(canvas, {
+                    type: 'matrix',
+                    data: {
+                        datasets: [{
+                            label: '相关系数',
+                            data: getMatrixData(correlationMatrix, variables),
+                            backgroundColor(context) {
+                                const value = context.dataset.data[context.dataIndex].v;
+                                
+                                // 红蓝渐变色
+                                if (value < 0) {
+                                    return `rgba(214, 39, 40, ${Math.abs(value)})`;
+                                } else {
+                                    return `rgba(31, 119, 180, ${value})`;
+                                }
+                            },
+                            borderColor: 'white',
+                            borderWidth: 1,
+                            width: ({ chart }) => (chart.chartArea || {}).width / variables.length - 1,
+                            height: ({ chart }) => (chart.chartArea || {}).height / variables.length - 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '关键变量相关系数热图',
+                                font: { size: 16, weight: 'bold' }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title() {
+                                        return '';
+                                    },
+                                    label(context) {
+                                        const v = context.dataset.data[context.dataIndex];
+                                        return [
+                                            `${v.x}: ${variables[v.y]}`,
+                                            `${v.y}: ${variables[v.x]}`,
+                                            `相关系数: ${v.v.toFixed(3)}`
+                                        ];
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: false
+                            },
+                            datalabels: {
+                                formatter: (value) => {
+                                    return value.v.toFixed(2);
+                                },
+                                color: (context) => {
+                                    const value = context.dataset.data[context.dataIndex].v;
+                                    return Math.abs(value) > 0.4 ? 'white' : 'black';
+                                },
+                                font: {
+                                    weight: 'bold',
+                                    size: 9
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                type: 'category',
+                                labels: getShortLabels(variables),
+                                offset: true,
+                                ticks: {
+                                    display: true
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                type: 'category',
+                                labels: getShortLabels(variables),
+                                offset: true,
+                                ticks: {
+                                    display: true
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 添加交互
+                canvas.addEventListener('mousemove', function(e) {
+                    const points = charts.correlationChart.getElementsAtEventForMode(
+                        e, 'nearest', { intersect: true }, false);
+                    
+                    if (points.length) {
+                        const firstPoint = points[0];
+                        const data = charts.correlationChart.data.datasets[0].data[firstPoint.index];
+                        
+                        showTooltip(
+                            '相关系数',
+                            `${variables[data.x]} 与 ${variables[data.y]}<br>` +
+                            `r = ${data.v.toFixed(3)}<br>` +
+                            `r² = ${(data.v * data.v).toFixed(3)}`
+                        );
+                        
+                        canvas.style.cursor = 'pointer';
+                    } else {
+                        hideTooltip();
+                        canvas.style.cursor = 'default';
+                    }
+                });
+                
+                canvas.addEventListener('mouseout', function() {
+                    hideTooltip();
+                    canvas.style.cursor = 'default';
+                });
+            } catch (error) {
+                console.error('创建相关性热图时出错:', error);
+            }
+        }
+        
+        // 计算两个变量之间的皮尔逊相关系数
+        function calculateCorrelation(data, var1, var2) {
+            try {
+                // 提取非空数据点
+                const validPairs = data.filter(item => 
+                    item && 
+                    item[var1] !== undefined && item[var1] !== null && !isNaN(parseFloat(item[var1])) &&
+                    item[var2] !== undefined && item[var2] !== null && !isNaN(parseFloat(item[var2]))
+                ).map(item => ({
+                    x: parseFloat(item[var1]),
+                    y: parseFloat(item[var2])
+                }));
+                
+                if (validPairs.length < 3) {
+                    return 0;  // 数据太少，无法计算有效相关系数
+                }
+                
+                // 计算均值
+                const xMean = validPairs.reduce((sum, pair) => sum + pair.x, 0) / validPairs.length;
+                const yMean = validPairs.reduce((sum, pair) => sum + pair.y, 0) / validPairs.length;
+                
+                // 计算协方差和标准差
+                let covariance = 0;
+                let xVariance = 0;
+                let yVariance = 0;
+                
+                validPairs.forEach(pair => {
+                    const xDiff = pair.x - xMean;
+                    const yDiff = pair.y - yMean;
+                    
+                    covariance += xDiff * yDiff;
+                    xVariance += xDiff * xDiff;
+                    yVariance += yDiff * yDiff;
+                });
+                
+                const xStdDev = Math.sqrt(xVariance);
+                const yStdDev = Math.sqrt(yVariance);
+                
+                if (xStdDev === 0 || yStdDev === 0) {
+                    return 0;  // 避免除以零
+                }
+                
+                return covariance / (xStdDev * yStdDev);
+            } catch (error) {
+                console.error('计算相关系数时出错:', error);
+                return 0;
+            }
+        }
+        
+        // 获取相关矩阵数据
+        function getMatrixData(matrix, labels) {
+            const data = [];
+            
+            for (let i = 0; i < matrix.length; i++) {
+                for (let j = 0; j < matrix[i].length; j++) {
+                    data.push({
+                        x: i,
+                        y: j,
+                        v: matrix[i][j]
+                    });
+                }
+            }
+            
+            return data;
+        }
+        
+        // 获取简短标签
+        function getShortLabels(labels) {
+            return labels.map(label => {
+                if (label === 'Soil Cadmium (mg/kg)') return '土壤镉';
+                if (label === 'Vegetable Cadmium (mg/kg)') return '蔬菜镉';
+                if (label === 'Urban THQ (Male)') return '城市THQ';
+                return label;
+            });
+        }
+        
+        // 6. 省份THQ风险对比
+        function createProvinceThqChart() {
+            try {
+                const canvas = document.getElementById('province-thq-chart');
+                if (!canvas) return;
+                
+                // 检查是否有数据
+                if (filteredData.length === 0) {
+                    console.log("没有数据用于创建省份THQ图表");
+                    return;
+                }
+                
+                // 打印第一条数据用于调试
+                console.log("数据样本结构:", filteredData[0]);
+                
+                // 确定使用哪个字段作为南北方划分
+                // 首先检查第一条数据中是否存在这些字段
+                const firstItem = filteredData[0] || {};
+                const northSouthField = firstItem["North-South Division"] !== undefined ? 
+                    "North-South Division" : "Region";
+                
+                console.log(`使用 ${northSouthField} 字段作为南北方划分`);
+                
+                // 按省份和南北方划分聚合THQ数据
+                const provinceData = {};
+                
+                filteredData.forEach(item => {
+                    if (!item || !item.Province) return;
+                    
+                    const province = item.Province;
+                    
+                    // 使用确定的南北方字段
+                    const region = item[northSouthField] || "未知";
+                    
+                    if (!provinceData[province]) {
+                        provinceData[province] = {
+                            region: region,
+                            'Urban THQ (Male)': { sum: 0, count: 0 },
+                            'Urban THQ (Female)': { sum: 0, count: 0 },
+                            'Rural THQ (Male)': { sum: 0, count: 0 },
+                            'Rural THQ (Female)': { sum: 0, count: 0 }
+                        };
+                    }
+                    
+                    // 累加各人群THQ - 使用标准列名
+                    ['Urban THQ (Male)', 'Urban THQ (Female)', 'Rural THQ (Male)', 'Rural THQ (Female)'].forEach(field => {
+                        if (item[field] !== undefined && !isNaN(parseFloat(item[field]))) {
+                            provinceData[province][field].sum += parseFloat(item[field]);
+                            provinceData[province][field].count += 1;
+                        }
+                    });
+                });
+                
+                // 如果没有有效数据，显示提示
+                if (Object.keys(provinceData).length === 0) {
+                    console.error("没有找到有效的省份THQ数据");
+                    const ctx = canvas.getContext('2d');
+                    ctx.font = '14px Arial';
+                    ctx.fillStyle = 'red';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('没有找到有效的省份THQ数据', canvas.width / 2, canvas.height / 2);
+                    return;
+                }
+                
+                // 计算平均值
+                Object.keys(provinceData).forEach(province => {
+                    ['Urban THQ (Male)', 'Urban THQ (Female)', 'Rural THQ (Male)', 'Rural THQ (Female)'].forEach(field => {
+                        if (provinceData[province][field].count > 0) {
+                            provinceData[province][field].avg = 
+                                provinceData[province][field].sum / provinceData[province][field].count;
+                        } else {
+                            provinceData[province][field].avg = 0;
+                        }
+                    });
+                });
+                
+                // 按城市男性THQ排序，取前12个省份
+                const sortedProvinces = Object.keys(provinceData)
+                    .sort((a, b) => 
+                        (provinceData[b]['Urban THQ (Male)'].avg || 0) - 
+                        (provinceData[a]['Urban THQ (Male)'].avg || 0)
+                    )
+                    .slice(0, 12);
+                
+                console.log("排序后的省份:", sortedProvinces);
+                
+                // 如果没有足够的省份数据，显示提示
+                if (sortedProvinces.length === 0) {
+                    const ctx = canvas.getContext('2d');
+                    ctx.font = '14px Arial';
+                    ctx.fillStyle = 'red';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('没有足够的省份数据来创建图表', canvas.width / 2, canvas.height / 2);
+                    return;
+                }
+                
+                // 分离南北方省份数据 - 使用标准的南北方值
+                const northProvinces = sortedProvinces.filter(p => provinceData[p].region === 'Northern China');
+                const southProvinces = sortedProvinces.filter(p => provinceData[p].region === 'Southern China');
+                
+                // 合并省份数据，先北方后南方
+                const chartProvinces = [...northProvinces, ...southProvinces];
+                
+                // 提取THQ数据
+                const urbanMaleThq = chartProvinces.map(p => provinceData[p]['Urban THQ (Male)'].avg || 0);
+                const urbanFemaleThq = chartProvinces.map(p => provinceData[p]['Urban THQ (Female)'].avg || 0);
+                const ruralMaleThq = chartProvinces.map(p => provinceData[p]['Rural THQ (Male)'].avg || 0);
+                const ruralFemaleThq = chartProvinces.map(p => provinceData[p]['Rural THQ (Female)'].avg || 0);
+                
+                // 创建分组水平条形图
+                charts.provinceThqChart = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: chartProvinces,
+                        datasets: [
+                            {
+                                label: '城市男性THQ',
+                                data: urbanMaleThq,
+                                backgroundColor: northProvinces.includes(chartProvinces[0]) ? 
+                                    chartProvinces.map(p => provinceData[p].region === 'Northern China' ? 
+                                        'rgba(31, 119, 180, 0.8)' : 'rgba(214, 39, 40, 0.8)') : 
+                                    'rgba(31, 119, 180, 0.8)',
+                                borderColor: 'white',
+                                borderWidth: 1,
+                                borderSkipped: false
+                            },
+                            {
+                                label: '城市女性THQ',
+                                data: urbanFemaleThq,
+                                backgroundColor: northProvinces.includes(chartProvinces[0]) ? 
+                                    chartProvinces.map(p => provinceData[p].region === 'Northern China' ? 
+                                        'rgba(31, 119, 180, 0.6)' : 'rgba(214, 39, 40, 0.6)') : 
+                                    'rgba(31, 119, 180, 0.6)',
+                                borderColor: 'white',
+                                borderWidth: 1,
+                                borderSkipped: false
+                            },
+                            {
+                                label: '农村男性THQ',
+                                data: ruralMaleThq,
+                                backgroundColor: northProvinces.includes(chartProvinces[0]) ? 
+                                    chartProvinces.map(p => provinceData[p].region === 'Northern China' ? 
+                                        'rgba(31, 119, 180, 0.4)' : 'rgba(214, 39, 40, 0.4)') : 
+                                    'rgba(31, 119, 180, 0.4)',
+                                borderColor: 'white',
+                                borderWidth: 1,
+                                borderSkipped: false
+                            },
+                            {
+                                label: '农村女性THQ',
+                                data: ruralFemaleThq,
+                                backgroundColor: northProvinces.includes(chartProvinces[0]) ? 
+                                    chartProvinces.map(p => provinceData[p].region === 'Northern China' ? 
+                                        'rgba(31, 119, 180, 0.2)' : 'rgba(214, 39, 40, 0.2)') : 
+                                    'rgba(31, 119, 180, 0.2)',
+                                borderColor: 'white',
+                                borderWidth: 1,
+                                borderSkipped: false
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '省份THQ风险等级对比（所有人群）',
+                                font: { size: 16, weight: 'bold' }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        const province = tooltipItems[0].label;
+                                        const region = provinceData[province].region;
+                                        return `${province} (${region})`;
+                                    },
+                                    label: function(context) {
+                                        const value = context.raw;
+                                        const label = context.dataset.label;
+                                        const riskLevel = getRiskLevel(value);
+                                        
+                                        return [
+                                            `${label}: ${value.toFixed(3)}`,
+                                            `风险级别: ${riskLevel}`
+                                        ];
+                                    },
+                                    footer: function(tooltipItems) {
+                                        const province = tooltipItems[0].label;
+                                        const samples = provinceData[province]['Urban THQ (Male)'].count;
+                                        return `样本数: ${samples}`;
+                                    }
+                                }
+                            },
+                            legend: {
+                                position: 'top'
+                            },
+                            datalabels: {
+                                display: function(context) {
+                                    return context.dataset.data[context.dataIndex] > 0.1;
+                                },
+                                align: 'center',
+                                anchor: 'center',
+                                formatter: function(value) {
+                                    return value.toFixed(2);
+                                },
+                                font: {
+                                    weight: 'bold',
+                                    size: 9
+                                },
+                                color: 'black'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '目标危害商 (THQ)',
+                                    font: { weight: 'bold' }
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '省份',
+                                    font: { weight: 'bold' }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 添加风险阈值线
+                const meta = charts.provinceThqChart.getDatasetMeta(0);
+                if (meta && meta.controller) {
+                    const xScale = charts.provinceThqChart.scales.x;
+                    const xPos = xScale.getPixelForValue(1);
+                    const canvasHeight = charts.provinceThqChart.height;
+                    
+                    charts.provinceThqChart.ctx.save();
+                    charts.provinceThqChart.ctx.beginPath();
+                    charts.provinceThqChart.ctx.moveTo(xPos, 0);
+                    charts.provinceThqChart.ctx.lineTo(xPos, canvasHeight);
+                    charts.provinceThqChart.ctx.lineWidth = 2;
+                    charts.provinceThqChart.ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+                    charts.provinceThqChart.ctx.setLineDash([5, 5]);
+                    charts.provinceThqChart.ctx.stroke();
+                    
+                    // 添加风险阈值标签
+                    charts.provinceThqChart.ctx.font = 'bold 10px Arial';
+                    charts.provinceThqChart.ctx.fillStyle = 'red';
+                    charts.provinceThqChart.ctx.fillText('风险阈值 (THQ=1)', xPos + 5, 15);
+                    charts.provinceThqChart.ctx.restore();
+                }
+                
+                console.log("省份THQ图表创建成功");
+                
+            } catch (error) {
+                console.error('创建省份THQ图表时出错:', error);
+                // 在图表区域显示错误信息
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    ctx.font = '14px Arial';
+                    ctx.fillStyle = 'red';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('创建图表时出错: ' + error.message, canvas.width / 2, canvas.height / 2);
+                }
+            }
+        }
+        
+        // 7. 季节对镉含量和BCF的影响
+        function createSeasonalChart() {
+            try {
+                const canvas = document.getElementById('season-chart');
+                if (!canvas) return;
+                
+                // 按季节聚合数据
+                const seasonData = {};
+                
+                filteredData.forEach(item => {
+                    if (!item || !item.Season) return;
+                    
+                    const season = item.Season;
+                    
+                    if (!seasonData[season]) {
+                        seasonData[season] = {
+                            'Vegetable Cadmium (mg/kg)': { sum: 0, count: 0 },
+                            'BCF': { sum: 0, count: 0 }
+                        };
+                    }
+                    
+                    // 累加指标
+                    ['Vegetable Cadmium (mg/kg)', 'BCF'].forEach(field => {
+                        if (item[field] !== undefined && !isNaN(parseFloat(item[field]))) {
+                            seasonData[season][field].sum += parseFloat(item[field]);
+                            seasonData[season][field].count += 1;
+                        }
+                    });
+                });
+                
+                // 计算平均值并按蔬菜镉含量排序
+                const seasons = Object.keys(seasonData);
+                
+                const vegCdAvg = seasons.map(season => 
+                    seasonData[season]['Vegetable Cadmium (mg/kg)'].count > 0 ?
+                    seasonData[season]['Vegetable Cadmium (mg/kg)'].sum / seasonData[season]['Vegetable Cadmium (mg/kg)'].count : 0
+                );
+                
+                const bcfAvg = seasons.map(season => 
+                    seasonData[season]['BCF'].count > 0 ?
+                    seasonData[season]['BCF'].sum / seasonData[season]['BCF'].count : 0
+                );
+                
+                const samples = seasons.map(season => 
+                    seasonData[season]['Vegetable Cadmium (mg/kg)'].count
+                );
+                
+                // 创建柱状图
+                charts.seasonChart = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: seasons,
+                        datasets: [
+                            {
+                                label: '蔬菜镉含量 (mg/kg)',
+                                data: vegCdAvg,
+                                backgroundColor: colors.primary,
+                                borderColor: 'white',
+                                borderWidth: 1,
+                                yAxisID: 'y-left'
+                            },
+                            {
+                                label: 'BCF',
+                                data: bcfAvg,
+                                backgroundColor: colors.secondary,
+                                borderColor: 'white',
+                                borderWidth: 1,
+                                yAxisID: 'y-right'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '季节对蔬菜镉含量和BCF的影响',
+                                font: { size: 16, weight: 'bold' }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        return tooltipItems[0].label;
+                                    },
+                                    label: function(context) {
+                                        const datasetLabel = context.dataset.label;
+                                        const value = context.raw;
+                                        const index = context.dataIndex;
+                                        
+                                        return [
+                                            `${datasetLabel}: ${value.toFixed(4)}`,
+                                            `样本数: ${samples[index]}`
+                                        ];
+                                    }
+                                }
+                            },
+                            legend: {
+                                position: 'top'
+                            },
+                            datalabels: {
+                                align: 'end',
+                                anchor: 'end',
+                                formatter: function(value) {
+                                    return value.toFixed(3);
+                                },
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '季节',
+                                    font: { weight: 'bold' }
+                                }
+                            },
+                            'y-left': {
+                                type: 'linear',
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: '蔬菜镉含量 (mg/kg)',
+                                    font: { weight: 'bold' }
+                                },
+                                beginAtZero: true
+                            },
+                            'y-right': {
+                                type: 'linear',
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: '生物富集系数 (BCF)',
+                                    font: { weight: 'bold' }
+                                },
+                                beginAtZero: true,
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 添加样本数标签
+                seasons.forEach((_, i) => {
+                    const meta = charts.seasonChart.getDatasetMeta(0);
+                    const rect = meta.data[i].getProps(['x', 'y', 'width', 'height']);
+                    
+                    charts.seasonChart.ctx.fillStyle = 'blue';
+                    charts.seasonChart.ctx.font = '9px Arial';
+                    charts.seasonChart.ctx.textAlign = 'center';
+                    charts.seasonChart.ctx.fillText(`n=${samples[i]}`, rect.x, rect.y + rect.height + 15);
+                });
+                
+                // 添加交互
+                canvas.addEventListener('mousemove', function(e) {
+                    const points = charts.seasonChart.getElementsAtEventForMode(
+                        e, 'nearest', { intersect: true }, false);
+                    
+                    if (points.length) {
+                        const firstPoint = points[0];
+                        const index = firstPoint.index;
+                        const datasetIndex = firstPoint.datasetIndex;
+                        const season = seasons[index];
+                        const datasetLabel = charts.seasonChart.data.datasets[datasetIndex].label;
+                        const value = charts.seasonChart.data.datasets[datasetIndex].data[index];
+                        
+                        // 综合显示当前季节的所有指标
+                        showTooltip(
+                            season,
+                            `${datasetLabel}: ${value.toFixed(4)}<br>` +
+                            `蔬菜镉含量: ${vegCdAvg[index].toFixed(4)} mg/kg<br>` +
+                            `BCF: ${bcfAvg[index].toFixed(4)}<br>` +
+                            `样本数: ${samples[index]}`
+                        );
+                        
+                        canvas.style.cursor = 'pointer';
+                    } else {
+                        hideTooltip();
+                        canvas.style.cursor = 'default';
+                    }
+                });
+                
+                canvas.addEventListener('mouseout', function() {
+                    hideTooltip();
+                    canvas.style.cursor = 'default';
+                });
+            } catch (error) {
+                console.error('创建季节影响图表时出错:', error);
+            }
+        }
+        
+        // 8. 土壤类型对镉转移的影响
+        function createSoilImpactChart() {
+            try {
+                const canvas = document.getElementById('soil-impact-chart');
+                if (!canvas) return;
+                
+                // 按土壤类型聚合数据
+                const soilData = {};
+                
+                filteredData.forEach(item => {
+                    if (!item || !item["Soil Type"] || 
+                        !item["Soil Cadmium (mg/kg)"] || !item["Vegetable Cadmium (mg/kg)"]) return;
+                    
+                    const soilType = item["Soil Type"];
+                    const soilCd = parseFloat(item["Soil Cadmium (mg/kg)"]);
+                    const vegCd = parseFloat(item["Vegetable Cadmium (mg/kg)"]);
+                    
+                    if (isNaN(soilCd) || isNaN(vegCd)) return;
+                    
+                    if (!soilData[soilType]) {
+                        soilData[soilType] = {
+                            points: [],
+                            soilCdSum: 0,
+                            vegCdSum: 0,
+                            count: 0
+                        };
+                    }
+                    
+                    soilData[soilType].points.push({ x: soilCd, y: vegCd });
+                    soilData[soilType].soilCdSum += soilCd;
+                    soilData[soilType].vegCdSum += vegCd;
+                    soilData[soilType].count += 1;
+                });
+                
+                // 计算平均值，筛选样本量足够的土壤类型
+                const minSamples = 5;
+                const validSoilTypes = Object.keys(soilData)
+                    .filter(soilType => soilData[soilType].count >= minSamples)
+                    .map(soilType => ({
+                        type: soilType,
+                        soilCdAvg: soilData[soilType].soilCdSum / soilData[soilType].count,
+                        vegCdAvg: soilData[soilType].vegCdSum / soilData[soilType].count,
+                        count: soilData[soilType].count
+                    }))
+                    .sort((a, b) => b.vegCdAvg - a.vegCdAvg);
+                
+                // 创建散点图
+                charts.soilImpactChart = new Chart(canvas, {
+                    type: 'scatter',
+                    data: {
+                        datasets: validSoilTypes.map((soil, i) => {
+                            const color = colors.bars[i % colors.bars.length];
+                            
+                            return {
+                                label: soil.type,
+                                data: soilData[soil.type].points,
+                                backgroundColor: color,
+                                borderColor: 'rgba(0, 0, 0, 0.1)',
+                                borderWidth: 1,
+                                pointRadius: Math.min(10, Math.max(4, Math.log(soil.count))) // 根据样本量设置点大小
+                            };
+                        })
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '土壤类型对镉转移的影响',
+                                font: { size: 16, weight: 'bold' }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        const datasetIndex = tooltipItems[0].datasetIndex;
+                                        return validSoilTypes[datasetIndex].type;
+                                    },
+                                    label: function(context) {
+                                        const datasetIndex = context.datasetIndex;
+                                        const data = context.dataset.data[context.dataIndex];
+                                        const soil = validSoilTypes[datasetIndex];
+                                        
+                                        return [
+                                            `土壤镉: ${data.x.toFixed(4)} mg/kg`,
+                                            `蔬菜镉: ${data.y.toFixed(4)} mg/kg`,
+                                            `平均土壤镉: ${soil.soilCdAvg.toFixed(4)} mg/kg`,
+                                            `平均蔬菜镉: ${soil.vegCdAvg.toFixed(4)} mg/kg`,
+                                            `样本数: ${soil.count}`
+                                        ];
+                                    }
+                                }
+                            },
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '土壤镉含量 (mg/kg)',
+                                    font: { weight: 'bold' }
+                                },
+                                beginAtZero: true
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '蔬菜镉含量 (mg/kg)',
+                                    font: { weight: 'bold' }
+                                },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                // 添加交互
+                canvas.addEventListener('mousemove', function(e) {
+                    const points = charts.soilImpactChart.getElementsAtEventForMode(
+                        e, 'nearest', { intersect: true }, false);
+                    
+                    if (points.length) {
+                        const firstPoint = points[0];
+                        const datasetIndex = firstPoint.datasetIndex;
+                        const index = firstPoint.index;
+                        const soilType = validSoilTypes[datasetIndex].type;
+                        const data = charts.soilImpactChart.data.datasets[datasetIndex].data[index];
+                        
+                        showTooltip(
+                            soilType,
+                            `土壤镉: ${data.x.toFixed(4)} mg/kg<br>` +
+                            `蔬菜镉: ${data.y.toFixed(4)} mg/kg<br>` +
+                            `BCF: ${(data.y / data.x).toFixed(4)}<br>` +
+                            `样本数: ${validSoilTypes[datasetIndex].count}`
+                        );
+                        
+                        canvas.style.cursor = 'pointer';
+                    } else {
+                        hideTooltip();
+                        canvas.style.cursor = 'default';
+                    }
+                });
+                
+                canvas.addEventListener('mouseout', function() {
+                    hideTooltip();
+                    canvas.style.cursor = 'default';
+                });
+                
+                // 添加回归线和R²值
+                if (validSoilTypes.length > 0) {
+                    // 合并所有数据点
+                    const allPoints = validSoilTypes.flatMap(soil => 
+                        soilData[soil.type].points
+                    );
+                    
+                    if (allPoints.length > 2) {
+                        // 提取X和Y值
+                        const xValues = allPoints.map(point => point.x);
+                        const yValues = allPoints.map(point => point.y);
+                        
+                        // 计算回归线参数
+                        const xMean = xValues.reduce((a, b) => a + b, 0) / xValues.length;
+                        const yMean = yValues.reduce((a, b) => a + b, 0) / yValues.length;
+                        
+                        let numerator = 0;
+                        let denominator = 0;
+                        
+                        for (let i = 0; i < xValues.length; i++) {
+                            numerator += (xValues[i] - xMean) * (yValues[i] - yMean);
+                            denominator += Math.pow(xValues[i] - xMean, 2);
+                        }
+                        
+                        const slope = numerator / denominator;
+                        const intercept = yMean - slope * xMean;
+                        
+                        // 计算R²
+                        let ssTotal = 0;
+                        let ssResidual = 0;
+                        
+                        for (let i = 0; i < yValues.length; i++) {
+                            ssTotal += Math.pow(yValues[i] - yMean, 2);
+                            ssResidual += Math.pow(yValues[i] - (slope * xValues[i] + intercept), 2);
+                        }
+                        
+                        const rSquared = 1 - (ssResidual / ssTotal);
+                        
+                        // 添加回归线
+                        const xMin = Math.min(...xValues);
+                        const xMax = Math.max(...xValues);
+                        
+                        charts.soilImpactChart.data.datasets.push({
+                            label: '回归线',
+                            data: [
+                                { x: xMin, y: slope * xMin + intercept },
+                                { x: xMax, y: slope * xMax + intercept }
+                            ],
+                            type: 'line',
+                            borderColor: 'red',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0
+                        });
+                        
+                        charts.soilImpactChart.update();
+                        
+                        // 添加R²文本
+                        charts.soilImpactChart.ctx.fillStyle = 'black';
+                        charts.soilImpactChart.ctx.font = 'bold 12px Arial';
+                        charts.soilImpactChart.ctx.fillText(
+                            `R² = ${rSquared.toFixed(3)}`,
+                            charts.soilImpactChart.width * 0.1,
+                            charts.soilImpactChart.height * 0.1
+                        );
+                    }
+                }
+            } catch (error) {
+                console.error('创建土壤影响图表时出错:', error);
+            }
+        }
+        
+        // 9. THQ风险分布图
+        function createRiskDistributionChart() {
+            try {
+                const canvas = document.getElementById('risk-distribution-chart');
+                if (!canvas) return;
+                
+                // 风险等级定义
+                const riskLevels = {
+                    'none': { label: '无风险 (≤0.5)', range: [0, 0.5], color: colors.thqRisk.none },
+                    'low': { label: '低风险 (0.5-1)', range: [0.5, 1], color: colors.thqRisk.low },
+                    'medium': { label: '中等风险 (1-2)', range: [1, 2], color: colors.thqRisk.medium },
+                    'high': { label: '高风险 (>2)', range: [2, Infinity], color: colors.thqRisk.high }
+                };
+                
+                // 人群分类
+                const populations = [
+                    { key: 'Urban THQ (Male)', label: '城市男性' },
+                    { key: 'Urban THQ (Female)', label: '城市女性' },
+                    { key: 'Rural THQ (Male)', label: '农村男性' },
+                    { key: 'Rural THQ (Female)', label: '农村女性' }
+                ];
+                
+                // 计算各风险等级的样本比例
+                const riskDistribution = {};
+                
+                populations.forEach(pop => {
+                    riskDistribution[pop.key] = {
+                        'none': 0,
+                        'low': 0,
+                        'medium': 0,
+                        'high': 0,
+                        'total': 0
+                    };
+                    
+                    // 统计风险分布
+                    filteredData.forEach(item => {
+                        if (!item || item[pop.key] === undefined || isNaN(parseFloat(item[pop.key]))) return;
+                        
+                        const thq = parseFloat(item[pop.key]);
+                        riskDistribution[pop.key].total += 1;
+                        
+                        if (thq <= 0.5) {
+                            riskDistribution[pop.key].none += 1;
+                        } else if (thq <= 1) {
+                            riskDistribution[pop.key].low += 1;
+                        } else if (thq <= 2) {
+                            riskDistribution[pop.key].medium += 1;
+                        } else {
+                            riskDistribution[pop.key].high += 1;
+                        }
+                    });
+                    
+                    // 计算百分比
+                    if (riskDistribution[pop.key].total > 0) {
+                        const total = riskDistribution[pop.key].total;
+                        riskDistribution[pop.key].none = (riskDistribution[pop.key].none / total) * 100;
+                        riskDistribution[pop.key].low = (riskDistribution[pop.key].low / total) * 100;
+                        riskDistribution[pop.key].medium = (riskDistribution[pop.key].medium / total) * 100;
+                        riskDistribution[pop.key].high = (riskDistribution[pop.key].high / total) * 100;
+                    }
+                });
+                
+                // 准备图表数据
+                const labels = Object.values(riskLevels).map(level => level.label);
+                
+                const datasets = populations.map((pop, i) => {
+                    // 基础颜色淡化因子
+                    const opacity = 1 - i * 0.2;
+                    
+                    return {
+                        label: pop.label,
+                        data: [
+                            riskDistribution[pop.key].none,
+                            riskDistribution[pop.key].low,
+                            riskDistribution[pop.key].medium,
+                            riskDistribution[pop.key].high
+                        ],
+                        backgroundColor: [
+                            `rgba(44, 160, 44, ${opacity})`,
+                            `rgba(210, 216, 44, ${opacity})`,
+                            `rgba(255, 127, 14, ${opacity})`,
+                            `rgba(214, 39, 40, ${opacity})`
+                        ],
+                        borderColor: 'white',
+                        borderWidth: 1
+                    };
+                });
+                
+                // 创建分组柱状图
+                charts.riskDistributionChart = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '健康风险等级分布',
+                                font: { size: 16, weight: 'bold' }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        return tooltipItems[0].label;
+                                    },
+                                    label: function(context) {
+                                        const population = context.dataset.label;
+                                        const value = context.raw;
+                                        
+                                        return `${population}: ${value.toFixed(1)}%`;
+                                    }
+                                }
+                            },
+                            legend: {
+                                position: 'top'
+                            },
+                            datalabels: {
+                                display: function(context) {
+                                    return context.dataset.data[context.dataIndex] > 3;
+                                },
+                                formatter: function(value) {
+                                    return value.toFixed(1) + '%';
+                                },
+                                color: 'black',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '风险等级',
+                                    font: { weight: 'bold' }
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '百分比 (%)',
+                                    font: { weight: 'bold' }
+                                },
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+                
+                // 添加交互
+                canvas.addEventListener('mousemove', function(e) {
+                    const points = charts.riskDistributionChart.getElementsAtEventForMode(
+                        e, 'nearest', { intersect: true }, false);
+                    
+                    if (points.length) {
+                        const firstPoint = points[0];
+                        const datasetIndex = firstPoint.datasetIndex;
+                        const index = firstPoint.index;
+                        const population = populations[datasetIndex].label;
+                        const riskLevel = labels[index];
+                        const value = charts.riskDistributionChart.data.datasets[datasetIndex].data[index];
+                        
+                        const popKey = populations[datasetIndex].key;
+                        const totalSamples = riskDistribution[popKey].total;
+                        const sampleCount = Math.round(value * totalSamples / 100);
+                        
+                        showTooltip(
+                            `${riskLevel} - ${population}`,
+                            `比例: ${value.toFixed(1)}%<br>` +
+                            `样本数: ${sampleCount}/${totalSamples}`
+                        );
+                        
+                        canvas.style.cursor = 'pointer';
+                    } else {
+                        hideTooltip();
+                        canvas.style.cursor = 'default';
+                    }
+                });
+                
+                canvas.addEventListener('mouseout', function() {
+                    hideTooltip();
+                    canvas.style.cursor = 'default';
+                });
+            } catch (error) {
+                console.error('创建风险分布图表时出错:', error);
+            }
+        }
+        
+        // 渲染数据表格
+        function renderTable() {
+            try {
+                const tbody = document.getElementById('data-tbody');
+                if (!tbody) return;
+                
+                tbody.innerHTML = '';
+                
+                if (filteredData.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="13" style="text-align: center;">没有找到匹配的数据</td></tr>';
+                    return;
+                }
+                
+                // 计算当前页显示的数据范围
+                const startIndex = (currentPage - 1) * rowsPerPage;
+                const endIndex = Math.min(startIndex + rowsPerPage, filteredData.length);
+                const displayData = filteredData.slice(startIndex, endIndex);
+                
+                // 为每条记录创建表格行
+                displayData.forEach(item => {
+                    if (!item) return;
+                    
+                    // 获取风险级别的颜色
+                    const urbanMaleRiskColor = getRiskColor(item["Urban THQ (Male)"]);
+                    const urbanFemaleRiskColor = getRiskColor(item["Urban THQ (Female)"]);
+                    const ruralMaleRiskColor = getRiskColor(item["Rural THQ (Male)"]);
+                    const ruralFemaleRiskColor = getRiskColor(item["Rural THQ (Female)"]);
+                    
+                    row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${formatText(item.Province)}</td>
+                        <td>${formatText(item["Major Veg Category"])}</td>
+                        <td>${formatText(item["Specific Veg Type"])}</td>
+                        <td>${formatText(item["Soil Type"])}</td>
+                        <td>${formatNumber(item["Soil Cadmium (mg/kg)"])}</td>
+                        <td>${formatNumber(item["Vegetable Cadmium (mg/kg)"])}</td>
+                        <td>${formatNumber(item.pH)}</td>
+                        <td>${formatNumber(item.SOM)}</td>
+                        <td>${formatNumber(item.CEC)}</td>
+                        <td style="color: ${urbanMaleRiskColor}">${formatNumber(item["Urban THQ (Male)"])}</td>
+                        <td style="color: ${urbanFemaleRiskColor}">${formatNumber(item["Urban THQ (Female)"])}</td>
+                        <td style="color: ${ruralMaleRiskColor}">${formatNumber(item["Rural THQ (Male)"])}</td>
+                        <td style="color: ${ruralFemaleRiskColor}">${formatNumber(item["Rural THQ (Female)"])}</td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('渲染表格时出错:', error);
+            }
+        }
+        
+        // 创建分页控件
+        function createPagination() {
+            try {
+                const pagination = document.getElementById('pagination');
+                if (!pagination) return;
+                
+                pagination.innerHTML = '';
+                
+                if (filteredData.length === 0) {
+                    return;
+                }
+                
+                const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+                
+                // 如果只有一页，不显示分页
+                if (totalPages <= 1) {
+                    return;
+                }
+                
+                // 添加上一页按钮
+                const prevButton = document.createElement('button');
+                prevButton.className = 'page-button';
+                prevButton.textContent = '上一页';
+                prevButton.disabled = currentPage === 1;
+                prevButton.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderTable();
+                        createPagination();
+                    }
+                });
+                pagination.appendChild(prevButton);
+                
+                // 添加页码按钮
+                const maxPageButtons = 5;
+                let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+                let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+                
+                // 调整startPage以确保始终显示maxPageButtons个按钮
+                if (endPage - startPage + 1 < maxPageButtons) {
+                    startPage = Math.max(1, endPage - maxPageButtons + 1);
+                }
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageButton = document.createElement('button');
+                    pageButton.className = 'page-button' + (i === currentPage ? ' active' : '');
+                    pageButton.textContent = i;
+                    pageButton.addEventListener('click', () => {
+                        currentPage = i;
+                        renderTable();
+                        createPagination();
+                    });
+                    pagination.appendChild(pageButton);
+                }
+                
+                // 添加下一页按钮
+                const nextButton = document.createElement('button');
+                nextButton.className = 'page-button';
+                nextButton.textContent = '下一页';
+                nextButton.disabled = currentPage === totalPages;
+                nextButton.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        renderTable();
+                        createPagination();
+                    }
+                });
+                pagination.appendChild(nextButton);
+                
+                // 添加页码信息
+                const pageInfo = document.createElement('span');
+                pageInfo.style.marginLeft = '10px';
+                pageInfo.style.fontSize = '0.7rem';
+                pageInfo.textContent = `${currentPage}/${totalPages}页，共${filteredData.length}条记录`;
+                pagination.appendChild(pageInfo);
+            } catch (error) {
+                console.error('创建分页控件时出错:', error);
+            }
+        }
+    </script>
+</body>
+</html>
