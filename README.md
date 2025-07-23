@@ -1,3 +1,8 @@
+## 🏢 Institution
+
+This project was developed at the:  
+**Laboratory of Environmental Ecological Health, Xiangtan University**
+
 # Comprehensive Database of Cadmium Pollution in Chinese Vegetables and Human Health Risks (CVCCD)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -81,10 +86,7 @@ This project is licensed under the MIT License. See the [LICENSE](./LICENSE) fil
 
 ---
 
-## 🏢 Institution
 
-This project was developed at the:  
-**Laboratory of Environmental Ecological Health, Xiangtan University**
 
 ---
 
